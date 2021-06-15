@@ -22,7 +22,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-		class UCameraComponent* BatterCamera;
+		class UCineCameraComponent* BatterCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		float LookSensitivity = 0.5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
