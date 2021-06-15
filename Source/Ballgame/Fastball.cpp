@@ -25,7 +25,7 @@ void AFastball::Tick(float DeltaTime)
 	AddActorWorldRotation(FRotator(1, 0, 0) * SpinRateRPM * 6 * DeltaTime);
 	PhysicsTick();
 	PrevX = GetActorLocation().X;
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::SanitizeFloat(-PMC->Velocity.X));
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::SanitizeFloat(-PMC->Velocity.X * 0.0223694));
 }
 
 void AFastball::PhysicsTick()

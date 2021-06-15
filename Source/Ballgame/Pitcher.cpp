@@ -33,11 +33,11 @@ void APitcher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	TimeSinceLastThrow += DeltaTime;
-	if (TimeSinceLastThrow > TimeBetweenThrows)
+	/*if (TimeSinceLastThrow > TimeBetweenThrows)
 	{
 		ThrowFastball();
 		TimeSinceLastThrow = 0;
-	}
+	}*/
 	DrawDebugSphere(GetWorld(), ReleasePoint->GetComponentLocation(), 6,
 		10, FColor::Red, false, 0.025, 0, 0);
 }

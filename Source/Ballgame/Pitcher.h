@@ -48,7 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		int FastballSpinRateRPM = 2200;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "My functions")
 		void ThrowFastball();
 	
 protected:
