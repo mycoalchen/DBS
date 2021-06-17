@@ -7,6 +7,8 @@
 #include "Fastball.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "PlayerCharacter.h"
+#include "CinematicCamera/Public/CineCameraComponent.h"
 
 // Sets default values
 APitcher::APitcher()
@@ -42,22 +44,30 @@ void APitcher::Tick(float DeltaTime)
 		10, FColor::Red, false, 0.025, 0, 0);
 }
 
-void APitcher::ThrowFastball()
+AFastball* APitcher::ThrowFastball(float MPH, float SpinRate)
 {
-	if (!Fastball) return;
 	// Spawn the ball at the correct location
-	GEngine->AddOnScreenDebugMessage(-1, 0.5, FColor::White, TEXT("Threw ball"));
+	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
-	const FRotator SpawnRotation = FRotator(0, 90, 0);
-	Fastball->SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Here"));
+	const FRotator SpawnRotation = FRotator(0, 0, 0);
+	AFastball* ball = GetWorld()->SpawnActor<AFastball>(FastballClass, SpawnLocation, SpawnRotation, SpawnParams);
 	
-	Fastball->PMC->InitialSpeed = FastballSpeedMPH * 44.7;
-	Fastball->PMC->MaxSpeed = 0;
-	Fastball->PMC->Velocity = FVector(-FastballSpeedMPH * 44.7, 0, 0);
-	// Ball->PMC->SetVelocityInLocalSpace(FVector(0, FastballSpeedMPH * 44.7, 0));
-	Fastball->SetLifeSpan(TimeBetweenThrows);
-	Fastball->SpinRateRPM = FastballSpinRateRPM;
+	ball->PMC->InitialSpeed = MPH * 44.7;
+	ball->PMC->MaxSpeed = 0;
+	ball->PMC->Velocity = FVector(-MPH * 44.7, 0, 0);
+	ball->SetLifeSpan(TimeBetweenThrows);
+	ball->SpinRateRPM = SpinRate;
+
+	APlayerCharacter* Player = StaticCast<APlayerCharacter*>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	if (Player->BatterCamera)
+		Player->BatterCamera->FocusSettings.TrackingFocusSettings.ActorToTrack = ball;
+
+	TArray<FStringFormatArg> args;
+	args.Add(FStringFormatArg(static_cast<int32>(MPH)));
+	args.Add(FStringFormatArg(static_cast<int32>(SpinRate)));
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::Format(TEXT("Fastball- {0} mph, {1} rpm"), args));
+
+	return ball;
 }
 
 

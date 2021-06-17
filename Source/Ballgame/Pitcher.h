@@ -47,13 +47,9 @@ public:
 		float FastballSpeedMPH = 80;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		int FastballSpinRateRPM = 2200;
-
-	// Fastball object (hidden when not active)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch objects")
-		class AFastball* Fastball;
 	
 	UFUNCTION(BlueprintCallable, Category = "My functions")
-		void ThrowFastball();
+		class AFastball* ThrowFastball(float MPH, float SpinRate);
 	
 protected:
 	virtual void BeginPlay() override;

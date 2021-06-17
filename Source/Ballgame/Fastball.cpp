@@ -15,7 +15,7 @@ void AFastball::BeginPlay()
 	Super::BeginPlay();
 	StartLocation = GetActorLocation();
 	PrimaryActorTick.bCanEverTick = true;
-	SetActorRotation(FRotator(0, 0, 0));
+	SetActorRotation(FRotator(0, 90, 0));
 	PrevX = GetActorLocation().X;
 }
 
@@ -25,7 +25,6 @@ void AFastball::Tick(float DeltaTime)
 	AddActorWorldRotation(FRotator(1, 0, 0) * SpinRateRPM * 6 * DeltaTime);
 	PhysicsTick();
 	PrevX = GetActorLocation().X;
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::SanitizeFloat(-PMC->Velocity.X * 0.0223694));
 }
 
 void AFastball::PhysicsTick()
