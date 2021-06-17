@@ -44,20 +44,20 @@ void APitcher::Tick(float DeltaTime)
 
 void APitcher::ThrowFastball()
 {
-	if (!FastballClass) return;
+	if (!Fastball) return;
 	// Spawn the ball at the correct location
 	GEngine->AddOnScreenDebugMessage(-1, 0.5, FColor::White, TEXT("Threw ball"));
-	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
-	const FRotator SpawnRotation = FRotator(0, 0, 0);
-	AFastball* Ball = GetWorld()->SpawnActor<AFastball>(FastballClass, SpawnLocation, SpawnRotation, SpawnParams);
+	const FRotator SpawnRotation = FRotator(0, 90, 0);
+	Fastball->SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Here"));
 	
-	Ball->PMC->InitialSpeed = FastballSpeedMPH * 44.7;
-	Ball->PMC->MaxSpeed = 0;
-	Ball->PMC->Velocity = FVector(-FastballSpeedMPH * 44.7, 0, 0);
+	Fastball->PMC->InitialSpeed = FastballSpeedMPH * 44.7;
+	Fastball->PMC->MaxSpeed = 0;
+	Fastball->PMC->Velocity = FVector(-FastballSpeedMPH * 44.7, 0, 0);
 	// Ball->PMC->SetVelocityInLocalSpace(FVector(0, FastballSpeedMPH * 44.7, 0));
-	Ball->SetLifeSpan(TimeBetweenThrows);
-	Ball->SpinRateRPM = FastballSpinRateRPM;
+	Fastball->SetLifeSpan(TimeBetweenThrows);
+	Fastball->SpinRateRPM = FastballSpinRateRPM;
 }
 
 

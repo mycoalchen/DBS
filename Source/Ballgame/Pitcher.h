@@ -48,6 +48,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		int FastballSpinRateRPM = 2200;
 
+	// Fastball object (hidden when not active)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch objects")
+		class AFastball* Fastball;
+	
 	UFUNCTION(BlueprintCallable, Category = "My functions")
 		void ThrowFastball();
 	

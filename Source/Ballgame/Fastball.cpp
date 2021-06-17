@@ -15,7 +15,7 @@ void AFastball::BeginPlay()
 	Super::BeginPlay();
 	StartLocation = GetActorLocation();
 	PrimaryActorTick.bCanEverTick = true;
-	SetActorRotation(FRotator(0, 90, 0));
+	SetActorRotation(FRotator(0, 0, 0));
 	PrevX = GetActorLocation().X;
 }
 
