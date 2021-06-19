@@ -25,8 +25,6 @@ public:
 		class UCineCameraComponent* BatterCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		float LookSensitivity = 0.5;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-		float EyeHeight = 73;
 
 #pragma region Training UI
 #pragma endregion
@@ -34,10 +32,4 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	// Mouse move reticle
-	UFUNCTION()
-		void MouseVertical(float Value);
-	UFUNCTION()
-		void MouseHorizontal(float Value);
 };

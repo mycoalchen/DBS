@@ -33,18 +33,4 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	// Mouse look
-	PlayerInputComponent->BindAxis("LookHorizontal", this, &APlayerCharacter::MouseHorizontal);
-	PlayerInputComponent->BindAxis("LookVertical", this, &APlayerCharacter::MouseVertical);
 }
-
-// Mouse look
-void APlayerCharacter::MouseHorizontal(float Value)
-{
-	
-}
-void APlayerCharacter::MouseVertical(float Value)
-{
-	
-}
-
