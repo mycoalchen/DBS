@@ -43,7 +43,7 @@ void ABallBase::BeginPlay()
 				GEngine->AddOnScreenDebugMessage(-1, 0.5, FColor::Blue, FString::SanitizeFloat(Opacity));
 			}
 			BlurMesh->AddInstance(FTransform(i * SpinRotator * BlurMeshAngle, FVector(0, 0, 0), FVector(1, 1, 1)));
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, FString::SanitizeFloat(i * SpinRotator.Pitch * BlurMeshAngle));
+			// GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, FString::SanitizeFloat(i * SpinRotator.Pitch * BlurMeshAngle));
 			UMaterialInstanceDynamic* BallMaterial = BlurMesh->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
 			BallMaterial->SetScalarParameterValue(FName("Opacity"), Opacity);
 			UMaterialInstanceDynamic* StrapMaterial = BlurMesh->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);
@@ -57,6 +57,13 @@ void ABallBase::BeginPlay()
 	else if (!BlurMesh->GetStaticMesh())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("What the fuc"));
+	}
+	if (StaticMesh)
+	{
+		UMaterialInstanceDynamic* BallMaterial = StaticMesh->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
+		UMaterialInstanceDynamic* StrapMaterial = StaticMesh->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);
+		BallMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
+		StrapMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
 	}
 }
 

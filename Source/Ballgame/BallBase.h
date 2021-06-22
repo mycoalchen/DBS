@@ -21,7 +21,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 		class UStaticMeshComponent* StaticMesh;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+		float StaticMeshOpacity = 0.9;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		class UProjectileMovementComponent* PMC;
 
