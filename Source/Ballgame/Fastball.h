@@ -23,8 +23,5 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void PhysicsTick() override;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Physics stats")
-		float SpinRateRPM = 2300;
 
 };

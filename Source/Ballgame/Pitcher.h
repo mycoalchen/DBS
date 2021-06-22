@@ -47,7 +47,8 @@ public:
 		float FastballSpeedMPH = 80;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		int FastballSpinRateRPM = 2200;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
+		FRotator FastballStartRotator = FRotator(0, 90, 0);
 	UFUNCTION(BlueprintCallable, Category = "My functions")
 		class AFastball* ThrowFastball(float MPH, float SpinRate);
 	

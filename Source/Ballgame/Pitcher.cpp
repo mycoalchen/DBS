@@ -49,7 +49,7 @@ AFastball* APitcher::ThrowFastball(float MPH, float SpinRate)
 	// Spawn the ball at the correct location
 	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
-	const FRotator SpawnRotation = FRotator(0, 0, 0);
+	const FRotator SpawnRotation = FastballStartRotator;
 	AFastball* ball = GetWorld()->SpawnActor<AFastball>(FastballClass, SpawnLocation, SpawnRotation, SpawnParams);
 	
 	ball->PMC->InitialSpeed = MPH * 44.7;
