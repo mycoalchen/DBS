@@ -54,7 +54,7 @@ AFastball* APitcher::ThrowFastball(float MPH, float SpinRate)
 	
 	ball->PMC->InitialSpeed = MPH * 44.7;
 	ball->PMC->MaxSpeed = 0;
-	ball->PMC->Velocity = FVector(-MPH * 44.7, 0, 0);
+	ball->PMC->Velocity = FVector(-MPH * 44.7, FMath::FRandRange(-70, 70), FMath::FRandRange(-125, 0));
 	ball->SetLifeSpan(TimeBetweenThrows);
 	ball->SpinRateRPM = SpinRate;
 

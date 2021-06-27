@@ -23,10 +23,16 @@ protected:
 		void MouseX(float Value);
 	UFUNCTION()
 		void MouseY(float Value);
+	UFUNCTION()
+		void LeftClick();
 	
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	// Swinging
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging", meta=(MakeEditWidget="true"))
+		class USceneComponent* SwingStartPoint;
+	
 	// Reticle used to aim at ball
 	UPROPERTY(BlueprintReadWrite, Category = "Reticle")
 		class USwingReticle* Reticle;

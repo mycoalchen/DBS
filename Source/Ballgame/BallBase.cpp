@@ -37,13 +37,8 @@ void ABallBase::BeginPlay()
 	{
 		for (int32 i = 0; i < NumBlurMeshes; i++)
 		{
-			float Opacity = BlurMeshMaxOpacity * OpacityFloatCurve->GetFloatValue(i / NumBlurMeshes);
-			if (i == 16)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 0.5, FColor::Blue, FString::SanitizeFloat(Opacity));
-			}
+			const float Opacity = BlurMeshMaxOpacity * OpacityFloatCurve->GetFloatValue(i / NumBlurMeshes);
 			BlurMesh->AddInstance(FTransform(i * SpinRotator * BlurMeshAngle, FVector(0, 0, 0), FVector(1, 1, 1)));
-			// GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, FString::SanitizeFloat(i * SpinRotator.Pitch * BlurMeshAngle));
 			UMaterialInstanceDynamic* BallMaterial = BlurMesh->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
 			BallMaterial->SetScalarParameterValue(FName("Opacity"), Opacity);
 			UMaterialInstanceDynamic* StrapMaterial = BlurMesh->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);

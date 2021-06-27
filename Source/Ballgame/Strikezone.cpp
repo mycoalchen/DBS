@@ -50,6 +50,5 @@ void AStrikezone::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	if (Ball)
 	{
 		const FVector OverlapPoint = OtherActor->GetActorLocation();
-		DrawDebugSphere(GetWorld(), OverlapPoint, 1, 10, FColor::Red, true, 2);
 	}
 }
