@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "PlayerCharacter.h"
+#include "MyGSB.h"
 #include "CinematicCamera/Public/CineCameraComponent.h"
 
 // Sets default values
@@ -67,6 +68,10 @@ AFastball* APitcher::ThrowFastball(float MPH, float SpinRate)
 	args.Add(FStringFormatArg(static_cast<int32>(SpinRate)));
 	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::Format(TEXT("Fastball- {0} mph, {1} rpm"), args));
 
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState)
+		GameState->ActiveBall = ball;
+	
 	return ball;
 }
 

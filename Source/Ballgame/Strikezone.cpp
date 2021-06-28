@@ -3,6 +3,7 @@
 #include "Strikezone.h"
 #include "Components/BoxComponent.h"
 #include "BallBase.h"
+#include "MyGSB.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -27,6 +28,9 @@ void AStrikezone::BeginPlay()
 	Super::BeginPlay();
 	OverlapBox->OnComponentBeginOverlap.AddDynamic(this, &AStrikezone::OnOverlapBegin);
 	OverlapBox->OnComponentEndOverlap.AddDynamic(this, &AStrikezone::OnOverlapEnd);
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState)
+		GameState->Strikezone = this;
 }
 
 void AStrikezone::PostInitializeComponents()
@@ -39,8 +43,7 @@ void AStrikezone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
-		const FVector OverlapPoint = OtherActor->GetActorLocation();
-		DrawDebugSphere(GetWorld(), OverlapPoint, 1, 10, FColor::Red, true, 2);
+		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, TEXT("Strike!"));
 	}
 }
 
@@ -48,7 +51,5 @@ void AStrikezone::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 {
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
-	{
-		const FVector OverlapPoint = OtherActor->GetActorLocation();
-	}
+	{}
 }

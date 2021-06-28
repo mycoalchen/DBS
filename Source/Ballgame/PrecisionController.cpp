@@ -2,12 +2,15 @@
 
 
 #include "PrecisionController.h"
+#include "BallBase.h"
 #include "SwingReticle.h"
+#include "MyGSB.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ContentWidget.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/PanelSlot.h"
 #include "Components/SceneComponent.h"
+#include "Components/SphereComponent.h"
 #include "CineCameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
@@ -15,14 +18,27 @@
 
 APrecisionController::APrecisionController()
 {
-	SwingStartPoint = CreateDefaultSubobject<USceneComponent>(FName("SwingStartPoint"));
+	SwingSphere = CreateDefaultSubobject<USphereComponent>(FName("SwingSphere"));
+	SwingSphere->SetSphereRadius(SwingSphereRadius);
+	SwingSphere->SetActive(false);
 }
 
 void APrecisionController::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateUI();
+	SwingSphere->OnComponentBeginOverlap.AddDynamic(this, &APrecisionController::OnSwingSphereOverlapped);
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState)
+		GameState->PlayerCharacter = this;
 }
+
+void APrecisionController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+}
+
 
 void APrecisionController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -44,17 +60,19 @@ void APrecisionController::CreateUI()
 
 void APrecisionController::MouseX(float Value)
 {
-	if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+	if (Reticle && Reticle->ReticleImage)
 	{
-		ImageSlot->SetPosition(ImageSlot->GetPosition() + FVector2D(ReticleSensitivity * Value, 0));
+		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+			ImageSlot->SetPosition(ImageSlot->GetPosition() + FVector2D(ReticleSensitivity * Value, 0));
 	}
 }
 
 void APrecisionController::MouseY(float Value)
 {
-	if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+	if (Reticle && Reticle->ReticleImage)
 	{
-		ImageSlot->SetPosition(ImageSlot->GetPosition() + FVector2D(0, -ReticleSensitivity * Value));
+		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+			ImageSlot->SetPosition(ImageSlot->GetPosition() + FVector2D(0, -ReticleSensitivity * Value));
 	}
 }
 
@@ -62,32 +80,40 @@ void APrecisionController::LeftClick()
 {
 	FVector2D ReticlePosition, ViewportSize;
 	FVector WorldPosition, WorldDirection;
-	if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
-		ReticlePosition = ImageSlot->GetPosition();
+	if (Reticle && Reticle->ReticleImage)
+	{
+		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+			ReticlePosition = ImageSlot->GetPosition();
+	}
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
-	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("BallTrace")));
-	FCollisionObjectQueryParams ObjectParams = FCollisionObjectQueryParams();
-	FHitResult HitResult(ForceInit);
 	
 	if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
 	{
-		DrawDebugSphere(GetWorld(), WorldPosition, 0.2, 20, FColor::White, false, 1);
-		// DrawDebugLine(GetWorld(), BatterCamera->GetComponentLocation() + WorldDirection * 0.5, BatterCamera->GetComponentLocation()	+ WorldDirection * 100, FColor::Purple, false, -1, 0, 0.6);
-		GetWorld()->LineTraceSingleByObjectType(HitResult,
-			BatterCamera->GetComponentLocation() + WorldDirection * 0.5,
-			BatterCamera->GetComponentLocation() + WorldDirection * 100,
-			ObjectParams,
-			Params);
-		if (HitResult.bBlockingHit)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Hit!"));
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Nothing hit :("));
-		}
+		float scaleFactor = SwingSphereXDistance / (WorldPosition.X - BatterCamera->GetComponentLocation().X);
+		FVector SwingLocation = FVector(BatterCamera->GetComponentLocation() + FVector(SwingSphereXDistance,
+			scaleFactor * (WorldPosition.Y - BatterCamera->GetComponentLocation().Y),
+			scaleFactor * (WorldPosition.Z - BatterCamera->GetComponentLocation().Z)));
+		DrawDebugSphere(GetWorld(), SwingLocation, SwingSphereRadius, 20, FColor::White, false, SwingSphereDuration);
+		SwingSphere->SetActive(true);
+		SwingSphere->SetWorldLocation(SwingLocation);
+		GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
 	}
 	
-	
+}
+
+void APrecisionController::OnSwingSphereOverlapped(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ABallBase* Ball = Cast<ABallBase>(OtherActor);
+	if (Ball)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Target hit!"));
+	}
+}
+
+
+void APrecisionController::OnSwingFinished()
+{
+	SwingSphere->SetActive(false);
+	GetWorld()->GetTimerManager().ClearTimer(SwingTimerHandle);
 }
