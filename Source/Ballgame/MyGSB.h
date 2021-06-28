@@ -6,24 +6,18 @@
 #include "GameFramework/GameStateBase.h"
 #include "MyGSB.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class BALLGAME_API AMyGSB : public AGameStateBase
 {
 	GENERATED_BODY()
 	
 public:
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Objects")
 		class AStrikezone* Strikezone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Objects")
 		class APlayerCharacter* PlayerCharacter;
-
-	// Most recently thrown ball before overlapping ball wall
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Objects")
-		class ABallBase* ActiveBall;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Objects")
 		class ABallWall* BallWall;

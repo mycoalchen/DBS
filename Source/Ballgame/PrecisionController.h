@@ -61,10 +61,5 @@ protected:
 		void OnSwingFinished();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		class USphereComponent* SwingSphere;
-
-public:
-	// Ball most recently thrown and still in the air
-	UPROPERTY(BlueprintReadWrite);
-	class ABallBase* ActiveBall;
 	
 };

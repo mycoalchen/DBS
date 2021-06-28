@@ -45,8 +45,12 @@ void APitcher::Tick(float DeltaTime)
 		10, FColor::Red, false, 0.025, 0, 0);
 }
 
-AFastball* APitcher::ThrowFastball(float MPH, float SpinRate)
+void APitcher::ThrowFastball(float MPH, float SpinRate)
 {
+	// Don't throw a pitch if there's already an active ball
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState && GameState->PlayerCharacter->ActiveBall || !GameState) return;
+	
 	// Spawn the ball at the correct location
 	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
@@ -68,11 +72,8 @@ AFastball* APitcher::ThrowFastball(float MPH, float SpinRate)
 	args.Add(FStringFormatArg(static_cast<int32>(SpinRate)));
 	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::Format(TEXT("Fastball- {0} mph, {1} rpm"), args));
 
-	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
-	if (GameState)
-		GameState->ActiveBall = ball;
+	GameState->PlayerCharacter->ActiveBall = ball;
 	
-	return ball;
 }
 
 

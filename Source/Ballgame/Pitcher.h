@@ -50,7 +50,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		FRotator FastballStartRotator = FRotator(0, 90, 0);
 	UFUNCTION(BlueprintCallable, Category = "My functions")
-		class AFastball* ThrowFastball(float MPH, float SpinRate);
+		void ThrowFastball(float MPH, float SpinRate);
 	
 protected:
 	virtual void BeginPlay() override;

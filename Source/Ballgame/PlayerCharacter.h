@@ -25,11 +25,16 @@ public:
 		class UCineCameraComponent* BatterCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		float LookSensitivity = 0.5;
-
+	
+	// Ball most recently thrown and still in the air
+	UPROPERTY(BlueprintReadWrite);
+	class ABallBase* ActiveBall;
+	
 #pragma region Training UI
 #pragma endregion
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 };

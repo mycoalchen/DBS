@@ -6,9 +6,6 @@
 #include "Strikezone.h"
 #include "BallWall.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class BALLGAME_API ABallWall : public AStrikezone
 {
