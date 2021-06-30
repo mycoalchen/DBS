@@ -21,4 +21,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Objects")
 		class ABallWall* BallWall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Objects")
+		class APitcher* Pitcher;
 };

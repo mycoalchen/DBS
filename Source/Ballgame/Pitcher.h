@@ -28,16 +28,12 @@ public:
 	float TimeSinceLastThrow = 0;
 
 	// Mesh
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UStaticMeshComponent* StaticMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+		class USkeletalMeshComponent* Body_Mesh;
 	
 	// Point to throw ball from
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		class USceneComponent* ReleasePoint;
-
-	// Target to throw to
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
-		class USceneComponent* PitchTarget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch types")
 		TSubclassOf<class AFastball> FastballClass;
@@ -51,6 +47,8 @@ public:
 		FRotator FastballStartRotator = FRotator(0, 90, 0);
 	UFUNCTION(BlueprintCallable, Category = "My functions")
 		void ThrowFastball(float MPH, float SpinRate);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Animation")
+		void PlayPitchAnimation();
 	
 protected:
 	virtual void BeginPlay() override;

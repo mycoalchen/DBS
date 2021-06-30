@@ -3,7 +3,7 @@
 
 #include "Pitcher.h"
 #include "Components/SceneComponent.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Fastball.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -16,11 +16,9 @@ APitcher::APitcher()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("StaticMesh"));
-	SetRootComponent(StaticMesh);
+	Body_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("BodyMesh"));
+	SetRootComponent(Body_Mesh);
 	ReleasePoint = CreateDefaultSubobject<USceneComponent>(FName("ReleasePoint"));
-	PitchTarget = CreateDefaultSubobject<USceneComponent>(FName("PitchTarget"));
-	PitchTarget->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +27,10 @@ void APitcher::BeginPlay()
 	Super::BeginPlay();
 	if (FastballClass == nullptr)
 		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("No fastball class in Pitcher"));
+	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+	ReleasePoint->AttachToComponent(Body_Mesh, Rules, FName("rightHandThrow"));
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState) GameState->Pitcher = this;
 }
 
 // Called every frame
@@ -72,6 +74,7 @@ void APitcher::ThrowFastball(float MPH, float SpinRate)
 
 	GameState->PlayerCharacter->ActiveBall = ball;
 	
+	PlayPitchAnimation();
 }
 
 
