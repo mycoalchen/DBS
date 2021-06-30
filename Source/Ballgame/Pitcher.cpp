@@ -27,8 +27,6 @@ void APitcher::BeginPlay()
 	Super::BeginPlay();
 	if (FastballClass == nullptr)
 		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("No fastball class in Pitcher"));
-	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-	ReleasePoint->AttachToComponent(Body_Mesh, Rules, FName("rightHandThrow"));
 	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
 	if (GameState) GameState->Pitcher = this;
 }
@@ -47,16 +45,26 @@ void APitcher::Tick(float DeltaTime)
 
 void APitcher::ThrowFastball(float MPH, float SpinRate)
 {
+	FTimerHandle WaitHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ThrowFastball2"), MPH, SpinRate);
+	PlayPitchAnimation();
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, TimerDelegate, 0.47, false);
+	
+}
+
+void APitcher::ThrowFastball2(float MPH, float SpinRate)
+{
 	// Don't throw a pitch if there's already an active ball
 	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
 	if (GameState && GameState->PlayerCharacter->ActiveBall || !GameState) return;
-	
+
 	// Spawn the ball at the correct location
 	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
 	const FRotator SpawnRotation = FastballStartRotator;
 	AFastball* ball = GetWorld()->SpawnActor<AFastball>(FastballClass, SpawnLocation, SpawnRotation, SpawnParams);
-	
+
 	ball->PMC->InitialSpeed = MPH * 44.7;
 	ball->PMC->MaxSpeed = 0;
 	ball->PMC->Velocity = FVector(-MPH * 44.7, FMath::FRandRange(-70, 70), FMath::FRandRange(-125, 0));
@@ -73,8 +81,6 @@ void APitcher::ThrowFastball(float MPH, float SpinRate)
 	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::Format(TEXT("Fastball- {0} mph, {1} rpm"), args));
 
 	GameState->PlayerCharacter->ActiveBall = ball;
-	
-	PlayPitchAnimation();
 }
 
 

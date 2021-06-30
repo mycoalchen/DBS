@@ -52,5 +52,10 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	// Called when the timer in ThrowFastball finishes (so the ball is thrown at the correct point in the animation)
+	UFUNCTION()
+		void ThrowFastball2(float MPH, float SpinRate);
 	
 };
