@@ -20,14 +20,14 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		class UCineCameraComponent* BatterCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		float LookSensitivity = 0.5;
 	
 	// Ball most recently thrown and still in the air
-	UPROPERTY(BlueprintReadWrite);
+	UPROPERTY(BlueprintReadWrite)
 	class ABallBase* ActiveBall;
 	
 #pragma region Training UI

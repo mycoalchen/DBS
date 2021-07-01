@@ -28,9 +28,7 @@ void APrecisionController::BeginPlay()
 	Super::BeginPlay();
 	CreateUI();
 	SwingSphere->OnComponentBeginOverlap.AddDynamic(this, &APrecisionController::OnSwingSphereOverlapped);
-	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
-	if (GameState)
-		GameState->PlayerCharacter = this;
+
 }
 
 void APrecisionController::Tick(float DeltaTime)
@@ -100,6 +98,18 @@ void APrecisionController::LeftClick()
 		GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
 	}
 	
+}
+
+void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ABallBase* Ball = Cast<ABallBase>(OtherActor);
+	if (Ball)
+	{
+		ActiveBall = nullptr;
+		GetWorld()->DestroyActor(Ball);
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Called"));
+	}
 }
 
 void APrecisionController::OnSwingSphereOverlapped(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

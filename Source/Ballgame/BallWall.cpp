@@ -4,27 +4,30 @@
 #include "BallWall.h"
 #include "BallBase.h"
 #include "MyGSB.h"
-#include "PlayerCharacter.h"
+#include "MyGI.h"
+#include "PrecisionController.h"
 #include "Components/BoxComponent.h"
 
 void ABallWall::BeginPlay()
 {
 	OverlapBox->OnComponentBeginOverlap.RemoveAll(this);
-	OverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ABallWall::OnOverlapBegin2);
 	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
 	if (GameState)
-		GameState->BallWall = this;
-	
-}
-
-void ABallWall::OnOverlapBegin2(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	ABallBase* Ball = Cast<ABallBase>(OtherActor);
-	if (Ball)
 	{
-		AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
-		if (GameState)
-			GameState->PlayerCharacter->ActiveBall = nullptr;
-		GetWorld()->DestroyActor(Ball);
+		GameState->BallWall = this;
+		UMyGI* GameInstance = Cast<UMyGI>(GetGameInstance());
+		if (GameInstance)
+		{
+			switch (GameInstance->InputMode)
+			{
+			case EInputMode::IM_Precision:
+				APrecisionController* PC = Cast<APrecisionController>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+				if (PC)
+				{
+					GameState->PlayerCharacter = PC; // Have to call this here to ensure that the following code works (BeginPlay may be called on this actor first)
+					OverlapBox->OnComponentBeginOverlap.AddDynamic(PC, &APrecisionController::OnBallWallHit);
+				}
+			}
+		}
 	}
 }

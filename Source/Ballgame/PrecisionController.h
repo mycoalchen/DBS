@@ -12,6 +12,10 @@ class BALLGAME_API APrecisionController : public APlayerCharacter
 	GENERATED_BODY()
 
 	APrecisionController();
+
+public:
+	UFUNCTION()
+		void OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 protected:
 	// Sets up reticle and other UI elements; called at beginning
@@ -50,8 +54,8 @@ protected:
 		float SwingSphereDuration = 0.05f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		float SwingSphereXDistance = 196;
-	// Whether the swing sphere is currently in position
-	bool IsSwinging = false;
+
+	// Vector from ball to swing sphere- updated when swing sphere and ball are active
 	FVector VectorToBall;
 	FTimerHandle SwingTimerHandle;
 	UFUNCTION()
