@@ -49,7 +49,9 @@ public:
 		void ThrowFastball(float MPH, float SpinRate);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Animation")
 		void PlayPitchAnimation();
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+		float ReleaseDelay = 0.7; // Time after animation starts to release pitch
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -49,7 +49,7 @@ void APitcher::ThrowFastball(float MPH, float SpinRate)
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindUFunction(this, FName("ThrowFastball2"), MPH, SpinRate);
 	PlayPitchAnimation();
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, TimerDelegate, 0.47, false);
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, TimerDelegate, ReleaseDelay, false);
 	
 }
 
