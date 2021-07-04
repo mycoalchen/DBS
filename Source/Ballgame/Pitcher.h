@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "Pitcher.generated.h"
 
 UCLASS()
-class BALLGAME_API APitcher : public AActor
+class BALLGAME_API APitcher : public APawn
 {
 	GENERATED_BODY()
 	
@@ -30,6 +30,8 @@ public:
 	// Mesh
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 		class USkeletalMeshComponent* Body_Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Capsule")
+		class UCapsuleComponent* Capsule;
 	
 	// Point to throw ball from
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")

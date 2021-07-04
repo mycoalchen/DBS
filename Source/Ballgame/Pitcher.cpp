@@ -8,17 +8,21 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "PlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "MyGSB.h"
 #include "CinematicCamera/Public/CineCameraComponent.h"
 
 // Sets default values
 APitcher::APitcher()
 {
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>(FName("Capsule"));
+	SetRootComponent(Capsule);
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Body_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("BodyMesh"));
-	SetRootComponent(Body_Mesh);
+	Body_Mesh->SetupAttachment(Capsule);
 	ReleasePoint = CreateDefaultSubobject<USceneComponent>(FName("ReleasePoint"));
+	ReleasePoint->SetupAttachment(Body_Mesh);
 }
 
 // Called when the game starts or when spawned

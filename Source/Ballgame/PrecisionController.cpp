@@ -4,6 +4,7 @@
 #include "PrecisionController.h"
 #include "BallBase.h"
 #include "SwingReticle.h"
+#include "PrecisionTrainingSidebar.h"
 #include "MyGSB.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ContentWidget.h"
@@ -28,7 +29,6 @@ void APrecisionController::BeginPlay()
 	Super::BeginPlay();
 	CreateUI();
 	SwingSphere->OnComponentBeginOverlap.AddDynamic(this, &APrecisionController::OnSwingSphereOverlapped);
-
 }
 
 void APrecisionController::Tick(float DeltaTime)
@@ -53,6 +53,11 @@ void APrecisionController::CreateUI()
 	{
 		Reticle = CreateWidget<USwingReticle>(GetWorld(), ReticleClass, FName(TEXT("Reticle")));
 		Reticle->AddToViewport();
+	}
+	if (SidebarClass)
+	{
+		Sidebar = CreateWidget<UPrecisionTrainingSidebar>(GetWorld(), SidebarClass, FName(TEXT("Sidebar")));
+		Sidebar->AddToViewport();
 	}
 }
 
@@ -108,7 +113,6 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 	{
 		ActiveBall = nullptr;
 		GetWorld()->DestroyActor(Ball);
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Called"));
 	}
 }
 

@@ -35,16 +35,16 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	// Reticle used to aim at ball
-	UPROPERTY(BlueprintReadWrite, Category = "Reticle")
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
 		class USwingReticle* Reticle;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reticle")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<class USwingReticle> ReticleClass;
 	// Current position of reticle
-	UPROPERTY(BlueprintReadWrite, Category = "Reticle")
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
 		float ReticleX = 0;
-	UPROPERTY(BlueprintReadWrite, Category = "Reticle")
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
 		float ReticleY = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reticle")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		float ReticleSensitivity = 25;
 	float MinReticleX, MinReticleY, MaxReticleX, MaxReticleY;
 
@@ -55,6 +55,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		float SwingSphereXDistance = 196;
 
+	// Sidebar for count, pitch, and swing information
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+		class UPrecisionTrainingSidebar* Sidebar;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		class TSubclassOf<class UPrecisionTrainingSidebar> SidebarClass;
+	
 	// Vector from ball to swing sphere- updated when swing sphere and ball are active
 	FVector VectorToBall;
 	FTimerHandle SwingTimerHandle;
