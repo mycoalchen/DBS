@@ -29,22 +29,31 @@ public:
 		class UTextBlock* MissText; // Where the swing missed
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ResultText;
-	// Time to display the result text
+	// Time to display the parts of the sidebar
 	UPROPERTY(BlueprintReadWrite)
-		float ResultDisplayTime = 1;
+		float ResultDisplayTime = 2;
+	UPROPERTY(BlueprintReadWrite)
+		float PitchDisplayTime = 2;
 
 	// Adds either a strike or a ball to the count
 	UFUNCTION()
 		void UpdateCount(bool Strike);
+
+	// Updates the pitch display - 1 fastball, 2 curveball
+	UFUNCTION()
+		void UpdatePitch(int Type, int SpeedMPH);
 	
 protected:
 	// Set result text for one second- 1 strikeout, 2 walk, 3 hit
 	UFUNCTION()
 		void SetResult(int result);
-	
 	// Reset count and clear the result text
 	UFUNCTION()
 		void ClearResult();
+
+	// Clear pitch text
+	UFUNCTION()
+		void ClearPitch();
 	
 	virtual void NativeConstruct() override;
 	

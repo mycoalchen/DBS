@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "PlayerCharacter.h"
+#include "PrecisionController.h"
 #include "Components/CapsuleComponent.h"
 #include "MyGSB.h"
 #include "CinematicCamera/Public/CineCameraComponent.h"
@@ -82,8 +83,12 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 	TArray<FStringFormatArg> args;
 	args.Add(FStringFormatArg(static_cast<int32>(MPH)));
 	args.Add(FStringFormatArg(static_cast<int32>(SpinRate)));
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::Format(TEXT("Fastball- {0} mph, {1} rpm"), args));
-
+	
+	APrecisionController* PC = Cast<APrecisionController>(GameState->PlayerCharacter);
+	if (PC)
+	{
+		PC->UpdatePitch(1, MPH);
+	}
 	GameState->PlayerCharacter->ActiveBall = ball;
 }
 

@@ -133,8 +133,13 @@ void APrecisionController::OnSwingFinished()
 	GetWorld()->GetTimerManager().ClearTimer(SwingTimerHandle);
 }
 
+#pragma region PrecisionTrainingSidebar callers
 void APrecisionController::UpdateCount(bool Strike)
 {
 	Sidebar->UpdateCount(Strike);
 }
-
+void APrecisionController::UpdatePitch(int Type, int SpeedMPH)
+{
+	Sidebar->UpdatePitch(Type, SpeedMPH);
+}
+#pragma endregion

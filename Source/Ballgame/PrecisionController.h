@@ -19,6 +19,8 @@ public:
 
 	// Adds either a strike or a ball to the count
 	void UpdateCount(bool Strike);
+	// 1 fastball, 2 curveball
+	void UpdatePitch(int Type, int SpeedMPH);
 	
 protected:
 	// Sets up reticle and other UI elements; called at beginning

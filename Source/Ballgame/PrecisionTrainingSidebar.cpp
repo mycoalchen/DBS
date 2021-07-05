@@ -13,7 +13,7 @@ void UPrecisionTrainingSidebar::NativeConstruct()
 	CountText->SetText(FText::FromString(FString("0-0")));
 }
 
-
+#pragma region Count and result
 void UPrecisionTrainingSidebar::SetResult(int result)
 {
 	FTimerHandle TimerHandle;
@@ -27,6 +27,8 @@ void UPrecisionTrainingSidebar::SetResult(int result)
 		ResultText->SetText(FText::FromString("Walked")); break;
 	case 3:
 		ResultText->SetText(FText::FromString("Got a hit")); break;
+	default:
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("SetResult result param error in PrecisionTrainingSidebar"));
 	}
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, ResultDisplayTime, false);
 }
@@ -50,4 +52,30 @@ void UPrecisionTrainingSidebar::UpdateCount(bool Strike)
 		SetResult(1);
 	else if (Balls == 4)
 		SetResult(2);
+}
+#pragma endregion
+
+void UPrecisionTrainingSidebar::UpdatePitch(int Type, int SpeedMPH)
+{
+	TArray<FStringFormatArg> args;
+	args.Add(FStringFormatArg(SpeedMPH));
+	switch (Type)
+	{
+	case 1:
+		args.Add(FStringFormatArg("Fastball")); break;
+	case 2:
+		args.Add(FStringFormatArg("Curveball")); break;
+	default:
+		args.Add(FStringFormatArg("PrecisionTrainingSidebar UpdatePitch Type error")); break;
+	}
+	PitchText->SetText(FText::FromString(FString::Format(TEXT("{1}-\r{0} mph"), args)));
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ClearPitch"));
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, PitchDisplayTime, false);
+}
+
+void UPrecisionTrainingSidebar::ClearPitch()
+{
+	PitchText->SetText(FText::FromString(""));
 }
