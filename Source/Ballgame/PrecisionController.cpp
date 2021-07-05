@@ -111,6 +111,7 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
+		if (!Ball->Strike) Sidebar->UpdateCount(false);
 		ActiveBall = nullptr;
 		GetWorld()->DestroyActor(Ball);
 	}
@@ -131,3 +132,9 @@ void APrecisionController::OnSwingFinished()
 	SwingSphere->SetActive(false);
 	GetWorld()->GetTimerManager().ClearTimer(SwingTimerHandle);
 }
+
+void APrecisionController::UpdateCount(bool Strike)
+{
+	Sidebar->UpdateCount(Strike);
+}
+

@@ -16,6 +16,9 @@ class BALLGAME_API APrecisionController : public APlayerCharacter
 public:
 	UFUNCTION()
 		void OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	// Adds either a strike or a ball to the count
+	void UpdateCount(bool Strike);
 	
 protected:
 	// Sets up reticle and other UI elements; called at beginning
