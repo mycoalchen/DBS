@@ -34,7 +34,8 @@ void APrecisionController::BeginPlay()
 void APrecisionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+	if (CanSwing)
+		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, TEXT("Can Swing"));
 }
 
 
@@ -83,6 +84,10 @@ void APrecisionController::LeftClick()
 {
 	if (CanSwing)
 	{
+		CanSwing = false;
+		if (ActiveBall)
+			ActiveBall->MarkedAsStrike = true;
+		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Swung!"));
 		FVector2D ReticlePosition, ViewportSize;
 		FVector WorldPosition, WorldDirection;
 		if (Reticle && Reticle->ReticleImage)
@@ -104,7 +109,7 @@ void APrecisionController::LeftClick()
 			SwingSphere->SetWorldLocation(SwingLocation);
 			GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
 		}
-		CanSwing = false;
+
 	}
 	
 	
@@ -116,9 +121,17 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
-		if (!Ball->Strike) Sidebar->UpdateCount(false);
+		if (!Ball->MarkedAsStrike) {
+			Sidebar->UpdateCount(false);
+			Sidebar->UpdateStrike(false);
+		}
+		else {
+			Sidebar->UpdateCount(true);
+			Sidebar->UpdateStrike(true);
+		}
 		ActiveBall = nullptr;
 		GetWorld()->DestroyActor(Ball);
+		CanSwing = false;
 	}
 }
 

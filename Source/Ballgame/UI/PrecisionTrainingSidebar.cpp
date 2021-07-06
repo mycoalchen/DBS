@@ -79,3 +79,18 @@ void UPrecisionTrainingSidebar::ClearPitch()
 {
 	PitchText->SetText(FText::FromString(""));
 }
+
+void UPrecisionTrainingSidebar::UpdateStrike(bool Strike)
+{
+	if (Strike) StrikeText->SetText(FText::FromString("Strike"));
+	else StrikeText->SetText(FText::FromString("Ball"));
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ClearStrike"));
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, StrikeDisplayTime, false);
+}
+
+void UPrecisionTrainingSidebar::ClearStrike()
+{
+	StrikeText->SetText(FText::FromString(""));
+}

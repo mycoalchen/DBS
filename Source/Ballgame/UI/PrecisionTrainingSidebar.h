@@ -34,14 +34,18 @@ public:
 		float ResultDisplayTime = 2;
 	UPROPERTY(BlueprintReadWrite)
 		float PitchDisplayTime = 2;
+	UPROPERTY(BlueprintReadWrite)
+		float StrikeDisplayTime = 1;
 
 	// Adds either a strike or a ball to the count
 	UFUNCTION()
 		void UpdateCount(bool Strike);
-
 	// Updates the pitch display - 1 fastball, 2 curveball
 	UFUNCTION()
 		void UpdatePitch(int Type, int SpeedMPH);
+	// Updates the strike display
+	UFUNCTION()
+		void UpdateStrike(bool Strike);
 	
 protected:
 	// Set result text for one second- 1 strikeout, 2 walk, 3 hit
@@ -50,10 +54,11 @@ protected:
 	// Reset count and clear the result text
 	UFUNCTION()
 		void ClearResult();
-
-	// Clear pitch text
+	// Clear various text boxes
 	UFUNCTION()
 		void ClearPitch();
+	UFUNCTION()
+		void ClearStrike();
 	
 	virtual void NativeConstruct() override;
 	

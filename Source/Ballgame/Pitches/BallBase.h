@@ -57,7 +57,7 @@ public:
 	// Float curve to use for opacity values - must pass through (1,0) and (0,1) without negative values
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Motion Blur")
 		class UCurveFloat* OpacityFloatCurve;
-	// Whether this ball hit the strike zone
-	bool Strike = false;
+	// Whether the strike zone or controller have marked this ball as a strike
+	bool MarkedAsStrike = false;
 	
 };

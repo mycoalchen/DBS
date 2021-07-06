@@ -46,8 +46,8 @@ void AStrikezone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
-		Ball->Strike = true;
-		AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+		Ball->MarkedAsStrike = true;
+		/*MyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
 		if (GameState)
 		{
 			UMyGI* GameInstance = Cast<UMyGI>(GetGameInstance());
@@ -57,13 +57,10 @@ void AStrikezone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 				{
 				case EInputMode::IM_Precision:
 					APrecisionController* PC = Cast<APrecisionController>(GameState->PlayerCharacter);
-					if (PC)
-					{
-						PC->UpdateCount(true);
-					}
+					
 				}
 			}
-		}
+		}*/
 	}
 }
 
