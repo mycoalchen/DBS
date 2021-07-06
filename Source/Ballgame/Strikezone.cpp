@@ -44,10 +44,10 @@ void AStrikezone::PostInitializeComponents()
 void AStrikezone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
-	if (Ball)
+	if (Ball && Ball->Status == EBallStatus::BS_Ball)
 	{
-		Ball->MarkedAsStrike = true;
-		/*MyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+		Ball->Status = EBallStatus::BS_Strike;
+		/*MyGSB* GameState = Ca\st<AMyGSB>(GetWorld()->GetGameState());
 		if (GameState)
 		{
 			UMyGI* GameInstance = Cast<UMyGI>(GetGameInstance());

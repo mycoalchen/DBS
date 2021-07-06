@@ -26,7 +26,7 @@ void UPrecisionTrainingSidebar::SetResult(int result)
 	case 2:
 		ResultText->SetText(FText::FromString("Walked")); break;
 	case 3:
-		ResultText->SetText(FText::FromString("Got a hit")); break;
+		ResultText->SetText(FText::FromString("Hit")); break;
 	default:
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("SetResult result param error in PrecisionTrainingSidebar"));
 	}
@@ -94,3 +94,22 @@ void UPrecisionTrainingSidebar::ClearStrike()
 {
 	StrikeText->SetText(FText::FromString(""));
 }
+
+void UPrecisionTrainingSidebar::UpdateHit(bool Hit)
+{
+	if (Hit) {
+		HitText->SetText(FText::FromString("Hit"));
+		SetResult(3);
+	}
+	else HitText->SetText(FText::FromString("Missed"));
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ClearHit"));
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, HitDisplayTime, false);
+}
+
+void UPrecisionTrainingSidebar::ClearHit()
+{
+	HitText->SetText(FText::FromString(""));
+}
+

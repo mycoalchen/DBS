@@ -6,6 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "BallBase.generated.h"
 
+UENUM(Blueprintable)
+enum class EBallStatus : uint8
+{
+	BS_Strike	UMETA(DisplayName = "Strike"),
+	BS_Ball		UMETA(DisplayName = "Ball"),
+	BS_Hit		UMETA(DisplayName = "Hit"),
+};
+
 UCLASS()
 class BALLGAME_API ABallBase : public AActor
 {
@@ -57,7 +65,7 @@ public:
 	// Float curve to use for opacity values - must pass through (1,0) and (0,1) without negative values
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Motion Blur")
 		class UCurveFloat* OpacityFloatCurve;
-	// Whether the strike zone or controller have marked this ball as a strike
-	bool MarkedAsStrike = false;
+	// Whether this ball is strike, ball, or hit
+	EBallStatus Status = EBallStatus::BS_Ball;
 	
 };

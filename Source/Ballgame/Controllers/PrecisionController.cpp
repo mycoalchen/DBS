@@ -86,7 +86,7 @@ void APrecisionController::LeftClick()
 	{
 		CanSwing = false;
 		if (ActiveBall)
-			ActiveBall->MarkedAsStrike = true;
+			ActiveBall->Status = EBallStatus::BS_Strike;
 		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Swung!"));
 		FVector2D ReticlePosition, ViewportSize;
 		FVector WorldPosition, WorldDirection;
@@ -112,7 +112,6 @@ void APrecisionController::LeftClick()
 
 	}
 	
-	
 }
 
 void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -121,13 +120,15 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
-		if (!Ball->MarkedAsStrike) {
+		switch (Ball->Status)
+		{
+		case EBallStatus::BS_Ball:
 			Sidebar->UpdateCount(false);
-			Sidebar->UpdateStrike(false);
-		}
-		else {
+			Sidebar->UpdateStrike(false); break;
+		case EBallStatus::BS_Strike:
 			Sidebar->UpdateCount(true);
-			Sidebar->UpdateStrike(true);
+			Sidebar->UpdateStrike(true); break;
+		case EBallStatus::BS_Hit: break;
 		}
 		ActiveBall = nullptr;
 		GetWorld()->DestroyActor(Ball);
@@ -140,14 +141,15 @@ void APrecisionController::OnSwingSphereOverlapped(UPrimitiveComponent* Overlapp
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Target hit!"));
+		Ball->Status = EBallStatus::BS_Hit;
+		Sidebar->UpdateHit(true);
 	}
 }
 
 
 void APrecisionController::OnSwingFinished()
 {
-	SwingSphere->SetActive(false);
+	SwingSphere->SetRelativeLocation(FVector(-100, 0, 0));
 	GetWorld()->GetTimerManager().ClearTimer(SwingTimerHandle);
 }
 
