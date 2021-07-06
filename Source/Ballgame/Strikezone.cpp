@@ -2,11 +2,11 @@
 
 #include "Strikezone.h"
 #include "Components/BoxComponent.h"
-#include "BallBase.h"
-#include "MyGSB.h"
-#include "MyGI.h"
-#include "PrecisionTrainingSidebar.h"
-#include "PrecisionController.h"
+#include "Pitches/BallBase.h"
+#include "Framework/MyGSB.h"
+#include "Framework/MyGI.h"
+#include "UI/PrecisionTrainingSidebar.h"
+#include "Controllers/PrecisionController.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values

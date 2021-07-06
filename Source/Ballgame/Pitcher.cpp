@@ -4,13 +4,13 @@
 #include "Pitcher.h"
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Fastball.h"
+#include "Pitches/Fastball.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "PlayerCharacter.h"
-#include "PrecisionController.h"
+#include "Controllers/PlayerCharacter.h"
+#include "Controllers/PrecisionController.h"
 #include "Components/CapsuleComponent.h"
-#include "MyGSB.h"
+#include "Framework/MyGSB.h"
 #include "CinematicCamera/Public/CineCameraComponent.h"
 
 // Sets default values

@@ -2,10 +2,10 @@
 
 
 #include "PrecisionController.h"
-#include "BallBase.h"
-#include "SwingReticle.h"
-#include "PrecisionTrainingSidebar.h"
-#include "MyGSB.h"
+#include "../Pitches/BallBase.h"
+#include "../UI/SwingReticle.h"
+#include "../UI/PrecisionTrainingSidebar.h"
+#include "../Framework/MyGSB.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ContentWidget.h"
 #include "Components/CanvasPanelSlot.h"

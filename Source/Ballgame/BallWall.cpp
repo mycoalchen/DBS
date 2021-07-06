@@ -2,10 +2,10 @@
 
 
 #include "BallWall.h"
-#include "BallBase.h"
-#include "MyGSB.h"
-#include "MyGI.h"
-#include "PrecisionController.h"
+#include "Pitches/BallBase.h"
+#include "Framework/MyGI.h"
+#include "Framework/MyGSB.h"
+#include "Controllers/PrecisionController.h"
 #include "Components/BoxComponent.h"
 
 void ABallWall::BeginPlay()
