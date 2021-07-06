@@ -113,3 +113,44 @@ void UPrecisionTrainingSidebar::ClearHit()
 	HitText->SetText(FText::FromString(""));
 }
 
+// v is the shortest vector from the swing sphere to the ball over the duration of the swing
+void UPrecisionTrainingSidebar::UpdateMiss(FVector v, float m)
+{
+	FString s = FString();
+	if (v.Z > m)
+		s = "Low";
+	if (v.Z < -m)
+		s = "High";
+	GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White, FString::SanitizeFloat(v.X));
+	if (v.Y > m)
+	{
+		if (!s.IsEmpty()) s += "/Left";
+		else s = "Left";
+	}
+	if (v.Y < -m)
+	{
+		if (!s.IsEmpty()) s += "/Right";
+		else s = "Right";
+	}
+	if (v.X > m)
+	{
+		if (!s.IsEmpty()) s += "/Early";
+		else s = "Early";
+	}
+	if (v.X < -m)
+	{
+		if (!s.IsEmpty()) s += "/Late";
+		else s = "Late";
+	}
+	MissText->SetText(FText::FromString(s));
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ClearMiss"));
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, HitDisplayTime, false);
+}
+
+void UPrecisionTrainingSidebar::ClearMiss()
+{
+	MissText->SetText(FText::FromString(""));
+}
+

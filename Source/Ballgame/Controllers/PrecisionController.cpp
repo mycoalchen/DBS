@@ -21,7 +21,7 @@ APrecisionController::APrecisionController()
 {
 	SwingSphere = CreateDefaultSubobject<USphereComponent>(FName("SwingSphere"));
 	SwingSphere->SetSphereRadius(SwingSphereRadius);
-	SwingSphere->SetActive(false);
+	SwingSphere->SetRelativeLocation(FVector(-100, 0, 0));
 }
 
 void APrecisionController::BeginPlay()
@@ -34,8 +34,11 @@ void APrecisionController::BeginPlay()
 void APrecisionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (CanSwing)
-		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, TEXT("Can Swing"));
+	if (ActiveBall && IsSwinging)
+	{
+		FVector v = ActiveBall->GetActorLocation() - SwingSphere->GetComponentLocation();
+		if (v.SizeSquared() < SphereToBall.SizeSquared()) SphereToBall = v;
+	}
 }
 
 
@@ -85,6 +88,7 @@ void APrecisionController::LeftClick()
 	if (CanSwing)
 	{
 		CanSwing = false;
+		IsSwinging = true;
 		if (ActiveBall)
 			ActiveBall->Status = EBallStatus::BS_Strike;
 		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Swung!"));
@@ -109,9 +113,7 @@ void APrecisionController::LeftClick()
 			SwingSphere->SetWorldLocation(SwingLocation);
 			GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
 		}
-
 	}
-	
 }
 
 void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -149,8 +151,15 @@ void APrecisionController::OnSwingSphereOverlapped(UPrimitiveComponent* Overlapp
 
 void APrecisionController::OnSwingFinished()
 {
+	IsSwinging = false;
 	SwingSphere->SetRelativeLocation(FVector(-100, 0, 0));
 	GetWorld()->GetTimerManager().ClearTimer(SwingTimerHandle);
+	if (!ActiveBall || ActiveBall->Status != EBallStatus::BS_Hit)
+	{
+		Sidebar->UpdateHit(false);
+		Sidebar->UpdateMiss(SphereToBall, 7.8 + SwingSphereRadius);
+	}
+	SphereToBall = FVector(1000, 1000, 1000);
 }
 
 #pragma region PrecisionTrainingSidebar callers

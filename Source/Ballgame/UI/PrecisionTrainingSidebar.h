@@ -51,6 +51,10 @@ public:
 	// Updates the hit display - true for "Hit", false for "Missed"
 	UFUNCTION()
 		void UpdateHit(bool Hit);
+	// Updates the location display given the min vector from the swing sphere to the ball
+	// MinLength is the radii of the swing sphere and ball added
+	UFUNCTION()
+		void UpdateMiss(FVector SphereToBall, float MinLength);
 	
 protected:
 	// Set result text for one second- 1 strikeout, 2 walk, 3 hit
@@ -66,6 +70,8 @@ protected:
 		void ClearStrike();
 	UFUNCTION()
 		void ClearHit();
+	UFUNCTION()
+		void ClearMiss();
 	
 	virtual void NativeConstruct() override;
 	

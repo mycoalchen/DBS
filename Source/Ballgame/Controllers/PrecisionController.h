@@ -69,9 +69,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		class TSubclassOf<class UPrecisionTrainingSidebar> SidebarClass;
 	
-	// Vector from ball to swing sphere- updated when swing sphere and ball are active
-	FVector VectorToBall;
+	// Vector from swing sphere to ball- updated when swing sphere and ball are active; tracks shortest vector
+	FVector SphereToBall = FVector(1000, 1000, 1000);
 	FTimerHandle SwingTimerHandle;
+	bool IsSwinging = false;
 	UFUNCTION()
 		void OnSwingSphereOverlapped(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	// Called when the swing sphere's duration ends
