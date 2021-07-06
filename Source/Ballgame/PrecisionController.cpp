@@ -81,27 +81,32 @@ void APrecisionController::MouseY(float Value)
 
 void APrecisionController::LeftClick()
 {
-	FVector2D ReticlePosition, ViewportSize;
-	FVector WorldPosition, WorldDirection;
-	if (Reticle && Reticle->ReticleImage)
+	if (CanSwing)
 	{
-		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
-			ReticlePosition = ImageSlot->GetPosition();
+		FVector2D ReticlePosition, ViewportSize;
+		FVector WorldPosition, WorldDirection;
+		if (Reticle && Reticle->ReticleImage)
+		{
+			if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+				ReticlePosition = ImageSlot->GetPosition();
+		}
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
+		{
+			float scaleFactor = SwingSphereXDistance / (WorldPosition.X - BatterCamera->GetComponentLocation().X);
+			FVector SwingLocation = FVector(BatterCamera->GetComponentLocation() + FVector(SwingSphereXDistance,
+				scaleFactor * (WorldPosition.Y - BatterCamera->GetComponentLocation().Y),
+				scaleFactor * (WorldPosition.Z - BatterCamera->GetComponentLocation().Z)));
+			DrawDebugSphere(GetWorld(), SwingLocation, SwingSphereRadius, 20, FColor::White, false, SwingSphereDuration);
+			SwingSphere->SetActive(true);
+			SwingSphere->SetWorldLocation(SwingLocation);
+			GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
+		}
+		CanSwing = false;
 	}
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	GEngine->GameViewport->GetViewportSize(ViewportSize);
 	
-	if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
-	{
-		float scaleFactor = SwingSphereXDistance / (WorldPosition.X - BatterCamera->GetComponentLocation().X);
-		FVector SwingLocation = FVector(BatterCamera->GetComponentLocation() + FVector(SwingSphereXDistance,
-			scaleFactor * (WorldPosition.Y - BatterCamera->GetComponentLocation().Y),
-			scaleFactor * (WorldPosition.Z - BatterCamera->GetComponentLocation().Z)));
-		DrawDebugSphere(GetWorld(), SwingLocation, SwingSphereRadius, 20, FColor::White, false, SwingSphereDuration);
-		SwingSphere->SetActive(true);
-		SwingSphere->SetWorldLocation(SwingLocation);
-		GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
-	}
 	
 }
 

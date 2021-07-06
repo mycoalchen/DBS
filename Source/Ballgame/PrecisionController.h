@@ -22,6 +22,9 @@ public:
 	// 1 fastball, 2 curveball
 	void UpdatePitch(int Type, int SpeedMPH);
 	
+	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
+		bool CanSwing = false;
+	
 protected:
 	// Sets up reticle and other UI elements; called at beginning
 	UFUNCTION()
@@ -56,10 +59,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		float SwingSphereRadius = 9.5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float SwingSphereDuration = 0.05f;
+		float SwingSphereDuration = 0.025f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		float SwingSphereXDistance = 196;
-
+	
 	// Sidebar for count, pitch, and swing information
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 		class UPrecisionTrainingSidebar* Sidebar;

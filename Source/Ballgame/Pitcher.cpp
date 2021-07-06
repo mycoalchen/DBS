@@ -88,6 +88,7 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 	if (PC)
 	{
 		PC->UpdatePitch(1, MPH);
+		PC->CanSwing = true;
 	}
 	GameState->PlayerCharacter->ActiveBall = ball;
 }

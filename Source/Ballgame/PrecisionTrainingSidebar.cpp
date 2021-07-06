@@ -62,7 +62,7 @@ void UPrecisionTrainingSidebar::UpdatePitch(int Type, int SpeedMPH)
 	switch (Type)
 	{
 	case 1:
-		args.Add(FStringFormatArg("Fastball")); break;
+		args.Add(FStringFormatArg("4 Seam Fastball")); break;
 	case 2:
 		args.Add(FStringFormatArg("Curveball")); break;
 	default:
