@@ -9,6 +9,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Controllers/PlayerCharacter.h"
 #include "Controllers/PrecisionController.h"
+#include "UI/PrecisionTrainingSidebar.h"
 #include "Components/CapsuleComponent.h"
 #include "Framework/MyGSB.h"
 #include "CinematicCamera/Public/CineCameraComponent.h"
@@ -87,7 +88,7 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 	APrecisionController* PC = Cast<APrecisionController>(GameState->PlayerCharacter);
 	if (PC)
 	{
-		PC->UpdatePitch(1, MPH);
+		PC->Sidebar->UpdatePitch(1, MPH);
 		PC->CanSwing = true;
 	}
 	GameState->PlayerCharacter->ActiveBall = ball;

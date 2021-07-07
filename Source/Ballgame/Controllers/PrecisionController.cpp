@@ -11,34 +11,26 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/PanelSlot.h"
 #include "Components/SceneComponent.h"
-#include "Components/SphereComponent.h"
 #include "CineCameraComponent.h"
+#include "Math/UnrealMathUtility.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
 #include "Components/Image.h"
 
 APrecisionController::APrecisionController()
 {
-	SwingSphere = CreateDefaultSubobject<USphereComponent>(FName("SwingSphere"));
-	SwingSphere->SetSphereRadius(SwingSphereRadius);
-	SwingSphere->SetRelativeLocation(FVector(-100, 0, 0));
+	SwingPlane = FPlane(SwingPlanePoint1, SwingPlanePoint2, SwingPlanePoint3);
 }
 
 void APrecisionController::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateUI();
-	SwingSphere->OnComponentBeginOverlap.AddDynamic(this, &APrecisionController::OnSwingSphereOverlapped);
 }
 
 void APrecisionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (ActiveBall && IsSwinging)
-	{
-		FVector v = ActiveBall->GetActorLocation() - SwingSphere->GetComponentLocation();
-		if (v.SizeSquared() < SphereToBall.SizeSquared()) SphereToBall = v;
-	}
 }
 
 
@@ -88,33 +80,55 @@ void APrecisionController::LeftClick()
 	if (CanSwing)
 	{
 		CanSwing = false;
-		IsSwinging = true;
-		if (ActiveBall)
-			ActiveBall->Status = EBallStatus::BS_Strike;
-		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Swung!"));
-		FVector2D ReticlePosition, ViewportSize;
-		FVector WorldPosition, WorldDirection;
-		if (Reticle && Reticle->ReticleImage)
-		{
-			if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
-				ReticlePosition = ImageSlot->GetPosition();
-		}
-		APlayerController* PC = GetWorld()->GetFirstPlayerController();
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		if (!ActiveBall) return;
+		Swing(SwingFrames);
+		// Call this function on the next frame as well
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindUFunction(this, FName("Swing"), SwingFrames);
+		GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
+	}
+}
 
-		if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
+void APrecisionController::Swing(int32 FramesRemaining)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Swung!"));
+	FVector2D ReticlePosition, ViewportSize;
+	FVector WorldPosition, WorldDirection;
+	if (Reticle && Reticle->ReticleImage)
+	{
+		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
+			ReticlePosition = ImageSlot->GetPosition();
+	}
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+	if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
+	{
+		const FVector SwingLocation = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + WorldDirection, SwingPlane);
+		DrawDebugSphere(GetWorld(), SwingLocation, SwingHitRadius, 10, FColor::Green, false, 2);
+		DrawDebugSphere(GetWorld(), ActiveBall->GetActorLocation(), 7.8, 10, FColor::Red, false, 2);
+		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= SwingHitRadius * SwingHitRadius)
 		{
-			float scaleFactor = SwingSphereXDistance / (WorldPosition.X - BatterCamera->GetComponentLocation().X);
-			FVector SwingLocation = FVector(BatterCamera->GetComponentLocation() + FVector(SwingSphereXDistance,
-				scaleFactor * (WorldPosition.Y - BatterCamera->GetComponentLocation().Y),
-				scaleFactor * (WorldPosition.Z - BatterCamera->GetComponentLocation().Z)));
-			DrawDebugSphere(GetWorld(), SwingLocation, SwingSphereRadius, 20, FColor::White, false, SwingSphereDuration);
-			SwingSphere->SetActive(true);
-			SwingSphere->SetWorldLocation(SwingLocation);
-			GetWorld()->GetTimerManager().SetTimer(SwingTimerHandle, this, &APrecisionController::OnSwingFinished, SwingSphereDuration);
+			ActiveBall->Status = EBallStatus::BS_Hit;
+			Sidebar->UpdateHit(true);
+		}
+		else if (FramesRemaining > 1)
+		{
+			// Call this function on the next frame as well
+			FTimerDelegate TimerDelegate;
+			TimerDelegate.BindUFunction(this, FName("Swing"), FramesRemaining - 1);
+			GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, TEXT("Called miss clause"));
+			ActiveBall->Status = EBallStatus::BS_Strike;
+			Sidebar->UpdateHit(false);
+			Sidebar->UpdateMiss(ActiveBall->GetActorLocation() - SwingLocation, SwingHitRadius);
 		}
 	}
 }
+
 
 void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -137,38 +151,3 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 		CanSwing = false;
 	}
 }
-
-void APrecisionController::OnSwingSphereOverlapped(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	ABallBase* Ball = Cast<ABallBase>(OtherActor);
-	if (Ball)
-	{
-		Ball->Status = EBallStatus::BS_Hit;
-		Sidebar->UpdateHit(true);
-	}
-}
-
-
-void APrecisionController::OnSwingFinished()
-{
-	IsSwinging = false;
-	SwingSphere->SetRelativeLocation(FVector(-100, 0, 0));
-	GetWorld()->GetTimerManager().ClearTimer(SwingTimerHandle);
-	if (!ActiveBall || ActiveBall->Status != EBallStatus::BS_Hit)
-	{
-		Sidebar->UpdateHit(false);
-		Sidebar->UpdateMiss(SphereToBall, 7.8 + SwingSphereRadius);
-	}
-	SphereToBall = FVector(1000, 1000, 1000);
-}
-
-#pragma region PrecisionTrainingSidebar callers
-void APrecisionController::UpdateCount(bool Strike)
-{
-	Sidebar->UpdateCount(Strike);
-}
-void APrecisionController::UpdatePitch(int Type, int SpeedMPH)
-{
-	Sidebar->UpdatePitch(Type, SpeedMPH);
-}
-#pragma endregion

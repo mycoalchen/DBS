@@ -16,14 +16,13 @@ class BALLGAME_API APrecisionController : public APlayerCharacter
 public:
 	UFUNCTION()
 		void OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	// Adds either a strike or a ball to the count
-	void UpdateCount(bool Strike);
-	// 1 fastball, 2 curveball
-	void UpdatePitch(int Type, int SpeedMPH);
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
 		bool CanSwing = false;
+	
+	// Sidebar for count, pitch, and swing information
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+		class UPrecisionTrainingSidebar* Sidebar;
 	
 protected:
 	// Sets up reticle and other UI elements; called at beginning
@@ -37,6 +36,8 @@ protected:
 		void MouseY(float Value);
 	UFUNCTION()
 		void LeftClick();
+	UFUNCTION()
+		void Swing(int32 FramesRemaining);
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -55,30 +56,25 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		float ReticleSensitivity = 25;
 	float MinReticleX, MinReticleY, MaxReticleX, MaxReticleY;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float SwingSphereRadius = 9.5;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float SwingSphereDuration = 0.025f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float SwingSphereXDistance = 196;
 	
-	// Sidebar for count, pitch, and swing information
-	UPROPERTY(BlueprintReadWrite, Category = "UI")
-		class UPrecisionTrainingSidebar* Sidebar;
+	// Indicates where the barrel should be swung for various pitches at different heights and y-coordinates
+	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
+		FPlane SwingPlane;
+	// Points defining what the swing plane should be
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
+		FVector SwingPlanePoint1 = FVector(35.8, -23.8, 171.9);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
+		FVector SwingPlanePoint2 = FVector(21, -23.8, 101.2);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
+		FVector SwingPlanePoint3 = FVector(-23, 21.5, 101.8);
+	// If the swing is within SwingHitRadius of the ball, it counts as a hit
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
+		float SwingHitRadius = 15;
+	// Number of frames to keep swing sphere active
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
+		int SwingFrames = 3;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		class TSubclassOf<class UPrecisionTrainingSidebar> SidebarClass;
-	
-	// Vector from swing sphere to ball- updated when swing sphere and ball are active; tracks shortest vector
-	FVector SphereToBall = FVector(1000, 1000, 1000);
-	FTimerHandle SwingTimerHandle;
-	bool IsSwinging = false;
-	UFUNCTION()
-		void OnSwingSphereOverlapped(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	// Called when the swing sphere's duration ends
-	UFUNCTION()
-		void OnSwingFinished();
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		class USphereComponent* SwingSphere;
 	
 };
