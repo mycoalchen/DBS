@@ -5,13 +5,8 @@
 #include "../Pitches/BallBase.h"
 #include "../UI/SwingReticle.h"
 #include "../UI/PrecisionTrainingSidebar.h"
-#include "../Framework/MyGSB.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/ContentWidget.h"
 #include "Components/CanvasPanelSlot.h"
-#include "Components/PanelSlot.h"
-#include "Components/SceneComponent.h"
-#include "CineCameraComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
@@ -19,13 +14,13 @@
 
 APrecisionController::APrecisionController()
 {
-	SwingPlane = FPlane(SwingPlanePoint1, SwingPlanePoint2, SwingPlanePoint3);
 }
 
 void APrecisionController::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateUI();
+	SwingPlane = FPlane(SwingPlanePoint1, SwingPlanePoint2, SwingPlanePoint3);
 }
 
 void APrecisionController::Tick(float DeltaTime)
@@ -79,19 +74,18 @@ void APrecisionController::LeftClick()
 {
 	if (CanSwing)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Called"));
 		CanSwing = false;
 		if (!ActiveBall) return;
-		Swing(SwingFrames);
-		// Call this function on the next frame as well
+		// Call the CheckSwing function on the next frame
 		FTimerDelegate TimerDelegate;
-		TimerDelegate.BindUFunction(this, FName("Swing"), SwingFrames);
+		TimerDelegate.BindUFunction(this, FName("CheckSwing"), SwingDuration);
 		GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
 	}
 }
 
-void APrecisionController::Swing(int32 FramesRemaining)
+void APrecisionController::CheckSwing(float TimeRemaining)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Swung!"));
 	FVector2D ReticlePosition, ViewportSize;
 	FVector WorldPosition, WorldDirection;
 	if (Reticle && Reticle->ReticleImage)
@@ -101,34 +95,39 @@ void APrecisionController::Swing(int32 FramesRemaining)
 	}
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
-
+	
 	if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
 	{
+		// Calculate the swing location using the swing plane and deprojected click location
 		const FVector SwingLocation = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + WorldDirection, SwingPlane);
-		DrawDebugSphere(GetWorld(), SwingLocation, SwingHitRadius, 10, FColor::Green, false, 2);
-		DrawDebugSphere(GetWorld(), ActiveBall->GetActorLocation(), 7.8, 10, FColor::Red, false, 2);
-		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= SwingHitRadius * SwingHitRadius)
-		{
-			ActiveBall->Status = EBallStatus::BS_Hit;
-			Sidebar->UpdateHit(true);
-		}
-		else if (FramesRemaining > 1)
-		{
-			// Call this function on the next frame as well
-			FTimerDelegate TimerDelegate;
-			TimerDelegate.BindUFunction(this, FName("Swing"), FramesRemaining - 1);
-			GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
-		}
-		else
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::White, SwingLocation.ToString());
+		// DrawDebugSphere(GetWorld(), SwingLocation, SwingHitRadius, 10, FColor::Green, false, 2);
+		// DrawDebugLine(GetWorld(), SwingLocation, SwingLocation - FVector(0, 0, 200), FColor::Green, false, 2, 0, 1);
+		// DrawDebugSphere(GetWorld(), ActiveBall->GetActorLocation(), 7.8, 10, FColor::Red, false, 2);
+		if (TimeRemaining <= 0)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, TEXT("Called miss clause"));
 			ActiveBall->Status = EBallStatus::BS_Strike;
 			Sidebar->UpdateHit(false);
 			Sidebar->UpdateMiss(ActiveBall->GetActorLocation() - SwingLocation, SwingHitRadius);
+			return;
 		}
+		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= SwingHitRadius * SwingHitRadius)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Called hit clause"));
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::SanitizeFloat(TimeRemaining));
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::SanitizeFloat(FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation())));
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::SanitizeFloat(SwingHitRadius * SwingHitRadius));
+			ActiveBall->Status = EBallStatus::BS_Hit;
+			Sidebar->UpdateHit(true);
+			return;
+		}
+		// Call this function on the next frame
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindUFunction(this, FName("CheckSwing"), TimeRemaining - GetWorld()->GetDeltaSeconds());
+		GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
 	}
 }
-
 
 void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -148,6 +147,6 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 		}
 		ActiveBall = nullptr;
 		GetWorld()->DestroyActor(Ball);
-		CanSwing = false;
+		// CanSwing = false;
 	}
 }

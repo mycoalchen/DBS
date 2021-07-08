@@ -90,6 +90,8 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 	{
 		PC->Sidebar->UpdatePitch(1, MPH);
 		PC->CanSwing = true;
+		// Balances difficulty
+		PC->SwingDuration = 0.08 * 90 / MPH;
 	}
 	GameState->PlayerCharacter->ActiveBall = ball;
 }

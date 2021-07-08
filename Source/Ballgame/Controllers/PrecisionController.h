@@ -18,7 +18,10 @@ public:
 		void OnBallWallHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
-		bool CanSwing = false;
+		bool CanSwing = true;
+	// Number of seconds to keep swing sphere active
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
+		float SwingDuration = 0.08;
 	
 	// Sidebar for count, pitch, and swing information
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
@@ -36,8 +39,9 @@ protected:
 		void MouseY(float Value);
 	UFUNCTION()
 		void LeftClick();
+	// Called every frame while swinging
 	UFUNCTION()
-		void Swing(int32 FramesRemaining);
+		void CheckSwing(float SwingTimeRemaining);
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -62,17 +66,14 @@ protected:
 		FPlane SwingPlane;
 	// Points defining what the swing plane should be
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		FVector SwingPlanePoint1 = FVector(35.8, -23.8, 171.9);
+		FVector SwingPlanePoint1 = FVector(21.5, -22, 166);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		FVector SwingPlanePoint2 = FVector(21, -23.8, 101.2);
+		FVector SwingPlanePoint2 = FVector(10, -10, 130);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		FVector SwingPlanePoint3 = FVector(-23, 21.5, 101.8);
+		FVector SwingPlanePoint3 = FVector(-21.5, 22, 101);
 	// If the swing is within SwingHitRadius of the ball, it counts as a hit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float SwingHitRadius = 15;
-	// Number of frames to keep swing sphere active
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		int SwingFrames = 3;
+		float SwingHitRadius = 17.5;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		class TSubclassOf<class UPrecisionTrainingSidebar> SidebarClass;
