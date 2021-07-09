@@ -7,6 +7,7 @@
 #include "../UI/PrecisionTrainingSidebar.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/TextBlock.h"
 #include "Math/UnrealMathUtility.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
@@ -81,6 +82,7 @@ void APrecisionController::LeftClick()
 		FTimerDelegate TimerDelegate;
 		TimerDelegate.BindUFunction(this, FName("CheckSwing"), SwingDuration);
 		GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
+		Sidebar->UpdateSwing(true);
 	}
 }
 
@@ -139,11 +141,16 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 		{
 		case EBallStatus::BS_Ball:
 			Sidebar->UpdateCount(false);
+			Sidebar->UpdateSwing(false);
 			Sidebar->UpdateStrike(false); break;
 		case EBallStatus::BS_Strike:
 			Sidebar->UpdateCount(true);
+			if (!Sidebar->SwingText->GetText().EqualTo(FText::FromString("Swung"))) {
+				Sidebar->UpdateSwing(false);
+			}
 			Sidebar->UpdateStrike(true); break;
-		case EBallStatus::BS_Hit: break;
+		case EBallStatus::BS_Hit: 
+			break;
 		}
 		ActiveBall = nullptr;
 		GetWorld()->DestroyActor(Ball);

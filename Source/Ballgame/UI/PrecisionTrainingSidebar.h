@@ -29,6 +29,8 @@ public:
 		class UTextBlock* MissText; // Where the swing missed
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ResultText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) // Whether the user swung
+		class UTextBlock* SwingText;
 	// Time to display the parts of the sidebar
 	UPROPERTY(BlueprintReadWrite)
 		float ResultDisplayTime = 2;
@@ -55,6 +57,9 @@ public:
 	// MinLength is the radii of the swing sphere and ball added
 	UFUNCTION()
 		void UpdateMiss(FVector SphereToBall, float MinLength);
+	// Updates the swing display with either "Swung" or "Taken"
+	UFUNCTION()
+		void UpdateSwing(bool Swung);
 	
 protected:
 	// Set result text for one second- 1 strikeout, 2 walk, 3 hit
@@ -72,6 +77,8 @@ protected:
 		void ClearHit();
 	UFUNCTION()
 		void ClearMiss();
+	UFUNCTION()
+		void ClearSwing();
 	
 	virtual void NativeConstruct() override;
 	

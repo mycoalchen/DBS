@@ -6,7 +6,7 @@
 
 void UPrecisionTrainingSidebar::NativeConstruct()
 {
-	for (UTextBlock* Block : {StrikeText, LocationText, PitchText, HitText, MissText, ResultText})
+	for (UTextBlock* Block : {StrikeText, LocationText, PitchText, HitText, MissText, ResultText, SwingText})
 	{
 		Block->SetText(FText::FromString(FString("")));
 	}
@@ -154,3 +154,17 @@ void UPrecisionTrainingSidebar::ClearMiss()
 	MissText->SetText(FText::FromString(""));
 }
 
+void UPrecisionTrainingSidebar::UpdateSwing(bool Swung)
+{
+	if (Swung) SwingText->SetText(FText::FromString("Swung"));
+	else SwingText->SetText(FText::FromString("Taken"));
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ClearSwing"));
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, ResultDisplayTime, false);
+}
+
+void UPrecisionTrainingSidebar::ClearSwing()
+{
+	SwingText->SetText(FText::FromString(""));
+}
