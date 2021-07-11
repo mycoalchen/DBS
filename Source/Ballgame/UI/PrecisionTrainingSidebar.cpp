@@ -121,7 +121,6 @@ void UPrecisionTrainingSidebar::UpdateMiss(FVector v, float m)
 		s = "Low";
 	if (v.Z < -m)
 		s = "High";
-	GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White, FString::SanitizeFloat(v.X));
 	if (v.Y > m)
 	{
 		if (!s.IsEmpty()) s += "/Left";

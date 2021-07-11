@@ -21,7 +21,9 @@ public:
 		bool CanSwing = true;
 	// Number of seconds to keep swing sphere active
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float SwingDuration = 0.08;
+		float BaseSwingDuration = 0.08;
+	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
+		float SwingDuration = BaseSwingDuration;
 	
 	// Sidebar for count, pitch, and swing information
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
@@ -74,6 +76,11 @@ protected:
 	// If the swing is within SwingHitRadius of the ball, it counts as a hit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		float SwingHitRadius = 17.5;
+	// Shortest vector from swing sphere to ball over the course of the swing
+	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
+		FVector SwingToBall = FVector(10000, 10000, 10000);
+	// Swing and ball locations when shortest SwingToBall was calculated
+	FVector BestSwingLocation, BestBallLocation;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		class TSubclassOf<class UPrecisionTrainingSidebar> SidebarClass;

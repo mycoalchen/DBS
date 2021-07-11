@@ -28,7 +28,9 @@ public:
 	ABallBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
-		class UStaticMeshComponent* StaticMesh;
+		class UStaticMeshComponent* StaticMeshComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+		class UStaticMesh* BlurStaticMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 		float StaticMeshOpacity = 0.9;
 	
@@ -44,16 +46,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spin")
 		FRotator SpinRotator = FRotator(0, 0, 0);
 
-	// Instanced static mesh used to instance many translucent meshes for motion blur
+	// Array of translucent static meshes used for motion blur
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Motion Blur")
-		class UInstancedStaticMeshComponent* BlurMesh;
-	// Number of blur mesh instances
+		TArray<UStaticMeshComponent*> BlurMeshes;
+	// Number of blur meshes
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Motion Blur")
 		int32 NumBlurMeshes = 20;
-	// Angle separating each blur mesh instance
+	// Angle separating each blur mesh
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Motion Blur")
 		float BlurMeshAngle = -2;
-	// Opacity of leading blur mesh instance
+	// Opacity of leading blur mesh
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Motion Blur")
 		float BlurMeshMaxOpacity = 0.3;
 	// Translucent ball (white) material used on blur meshes

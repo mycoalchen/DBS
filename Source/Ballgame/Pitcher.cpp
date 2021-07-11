@@ -5,6 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Pitches/Fastball.h"
+#include "Pitches/Curveball.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Controllers/PlayerCharacter.h"
@@ -91,9 +92,53 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 		PC->Sidebar->UpdatePitch(1, MPH);
 		PC->CanSwing = true;
 		// Balances difficulty
-		PC->SwingDuration = 0.08 * 90 / MPH;
+		PC->SwingDuration = -0.0016 * (MPH - 85) + PC->BaseSwingDuration;
 	}
 	GameState->PlayerCharacter->ActiveBall = ball;
 }
 
+void APitcher::ThrowCurveball(float MPH, float SpinRate)
+{
+	FTimerHandle WaitHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("ThrowCurveball2"), MPH, SpinRate);
+	PlayPitchAnimation();
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, TimerDelegate, ReleaseDelay, false);
+
+}
+
+void APitcher::ThrowCurveball2(float MPH, float SpinRate)
+{
+	// Don't throw a pitch if there's already an active ball
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState && GameState->PlayerCharacter->ActiveBall || !GameState) return;
+
+	// Spawn the ball at the correct location
+	const FActorSpawnParameters SpawnParams;
+	ACurveball* ball = GetWorld()->SpawnActor<ACurveball>(CurveballClass, ReleasePoint->GetComponentLocation(), CurveballStartRotator, SpawnParams);
+
+	ball->PMC->InitialSpeed = MPH * 44.7;
+	ball->PMC->MaxSpeed = 0;
+	ball->PMC->Velocity = FVector(-MPH * 44.7, FMath::FRandRange(-40, 40), FMath::FRandRange(-125, -35));
+	ball->SetLifeSpan(TimeBetweenThrows);
+	ball->SpinRateRPM = SpinRate;
+
+	APlayerCharacter* Player = StaticCast<APlayerCharacter*>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	if (Player->BatterCamera)
+		Player->BatterCamera->FocusSettings.TrackingFocusSettings.ActorToTrack = ball;
+
+	TArray<FStringFormatArg> args;
+	args.Add(FStringFormatArg(static_cast<int32>(MPH)));
+	args.Add(FStringFormatArg(static_cast<int32>(SpinRate)));
+	
+	APrecisionController* PC = Cast<APrecisionController>(GameState->PlayerCharacter);
+	if (PC)
+	{
+		PC->Sidebar->UpdatePitch(1, MPH);
+		PC->CanSwing = true;
+		// Balances difficulty
+		PC->SwingDuration = -0.0016 * (MPH - 85) + PC->BaseSwingDuration;
+	}
+	GameState->PlayerCharacter->ActiveBall = ball;
+}
 

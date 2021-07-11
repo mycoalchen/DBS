@@ -75,14 +75,14 @@ void APrecisionController::LeftClick()
 {
 	if (CanSwing)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("Called"));
 		CanSwing = false;
 		if (!ActiveBall) return;
 		// Call the CheckSwing function on the next frame
 		FTimerDelegate TimerDelegate;
-		TimerDelegate.BindUFunction(this, FName("CheckSwing"), SwingDuration);
-		GetWorldTimerManager().SetTimerForNextTick(TimerDelegate);
+		CheckSwing(SwingDuration);
 		Sidebar->UpdateSwing(true);
+		ReticleSensitivity /= 10;
+		SwingToBall = FVector(10000, 10000, 10000);
 	}
 }
 
@@ -102,26 +102,37 @@ void APrecisionController::CheckSwing(float TimeRemaining)
 	{
 		// Calculate the swing location using the swing plane and deprojected click location
 		const FVector SwingLocation = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + WorldDirection, SwingPlane);
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::White, SwingLocation.ToString());
-		// DrawDebugSphere(GetWorld(), SwingLocation, SwingHitRadius, 10, FColor::Green, false, 2);
-		// DrawDebugLine(GetWorld(), SwingLocation, SwingLocation - FVector(0, 0, 200), FColor::Green, false, 2, 0, 1);
-		// DrawDebugSphere(GetWorld(), ActiveBall->GetActorLocation(), 7.8, 10, FColor::Red, false, 2);
+		const FVector NewSwingToBall = SwingLocation - ActiveBall->GetActorLocation();
+		if (NewSwingToBall.SizeSquared() < SwingToBall.SizeSquared()) {
+			SwingToBall = NewSwingToBall;
+			BestSwingLocation = SwingLocation;
+			BestBallLocation = ActiveBall->GetActorLocation();
+		}
+		/*DrawDebugSphere(GetWorld(), SwingLocation, SwingHitRadius, 10, FColor::Green, false, 2);
+		DrawDebugLine(GetWorld(), SwingLocation, SwingLocation - FVector(0, 0, 200), FColor::Green, false, 2, 0, 0.3);
+		DrawDebugSphere(GetWorld(), ActiveBall->GetActorLocation(), 7.8, 10, FColor::Red, false, 2);
+		DrawDebugLine(GetWorld(), ActiveBall->GetActorLocation(), ActiveBall->GetActorLocation() - FVector(0, 0, 200), FColor::Red, false, 2, 0, 0.3);*/
 		if (TimeRemaining <= 0)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, TEXT("Called miss clause"));
 			ActiveBall->Status = EBallStatus::BS_Strike;
 			Sidebar->UpdateHit(false);
-			Sidebar->UpdateMiss(ActiveBall->GetActorLocation() - SwingLocation, SwingHitRadius);
+			Sidebar->UpdateMiss(-SwingToBall, SwingHitRadius);
+			ReticleSensitivity *= 10;
+			DrawDebugSphere(GetWorld(), BestSwingLocation, SwingHitRadius, 16, FColor::Blue, false, 2);
+			// DrawDebugLine(GetWorld(), BestSwingLocation, BestSwingLocation - FVector(0, 0, 200), FColor::Blue, false, 2, 0, 0.3);
+			DrawDebugSphere(GetWorld(), BestBallLocation, 3.9, 16, FColor::Red, false, 2);
+			// DrawDebugLine(GetWorld(), BestBallLocation, BestBallLocation - FVector(0, 0, 200), FColor::Red, false, 2, 0, 0.3);
 			return;
 		}
-		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= SwingHitRadius * SwingHitRadius)
+		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= (SwingHitRadius+7.8)* (SwingHitRadius + 7.8))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Called hit clause"));
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::SanitizeFloat(TimeRemaining));
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::SanitizeFloat(FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation())));
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::SanitizeFloat(SwingHitRadius * SwingHitRadius));
 			ActiveBall->Status = EBallStatus::BS_Hit;
 			Sidebar->UpdateHit(true);
+			ReticleSensitivity *= 10;
+			DrawDebugSphere(GetWorld(), BestSwingLocation, SwingHitRadius, 16, FColor::Blue, false, 2);
+			// DrawDebugLine(GetWorld(), BestSwingLocation, BestSwingLocation - FVector(0, 0, 200), FColor::Blue, false, 2, 0, 0.3);
+			DrawDebugSphere(GetWorld(), BestBallLocation, 3.9, 16, FColor::Red, false, 2);
+			// DrawDebugLine(GetWorld(), BestBallLocation, BestBallLocation - FVector(0, 0, 200), FColor::Red, false, 2, 0, 0.3);
 			return;
 		}
 		// Call this function on the next frame

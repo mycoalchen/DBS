@@ -37,9 +37,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		class USceneComponent* ReleasePoint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch types")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pitch types")
 		TSubclassOf<class AFastball> FastballClass;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pitch types")
+		TSubclassOf<class ACurveball> CurveballClass;
+	
 	// Initial xy-speed of fastballs
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		float FastballSpeedMPH = 80;
@@ -47,8 +49,14 @@ public:
 		int FastballSpinRateRPM = 2200;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		FRotator FastballStartRotator = FRotator(0, 90, 0);
-	UFUNCTION(BlueprintCallable, Category = "My functions")
+	UFUNCTION(BlueprintCallable, Category = "Pitch functions")
 		void ThrowFastball(float MPH, float SpinRate);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
+		FRotator CurveballStartRotator = FRotator(0, 30, -90);
+	UFUNCTION(BlueprintCallable, Category = "My functions")
+		void ThrowCurveball(float MPH, float SpinRate);
+	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Animation")
 		void PlayPitchAnimation();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -61,5 +69,7 @@ private:
 	// Called when the timer in ThrowFastball finishes (so the ball is thrown at the correct point in the animation)
 	UFUNCTION()
 		void ThrowFastball2(float MPH, float SpinRate);
+	UFUNCTION()
+		void ThrowCurveball2(float MPH, float SpinRate);
 	
 };

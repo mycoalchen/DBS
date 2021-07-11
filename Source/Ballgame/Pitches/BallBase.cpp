@@ -2,7 +2,6 @@
 
 #include "BallBase.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/InstancedStaticMeshComponent.h"
 #include "Materials/Material.h"
 #include "DrawDebugHelpers.h"
 #include "Curves/CurveFloat.h"
@@ -14,13 +13,9 @@ ABallBase::ABallBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("StaticMesh"));
-	StaticMesh->SetMobility(EComponentMobility::Movable);
-	SetRootComponent(StaticMesh);
-
-	BlurMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>(FName("BlurMesh"));
-	BlurMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	BlurMesh->SetupAttachment(StaticMesh);
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("StaticMesh"));
+	StaticMeshComponent->SetMobility(EComponentMobility::Movable);
+	SetRootComponent(StaticMeshComponent);
 	
 	PMC = CreateDefaultSubobject<UProjectileMovementComponent>(FName("PMC"));
 	PMC->ProjectileGravityScale = 1;
@@ -31,40 +26,43 @@ ABallBase::ABallBase()
 void ABallBase::BeginPlay()
 {
 	Super::BeginPlay();
-	BlurMesh->RegisterComponent();
+	if (StaticMeshComponent)
+	{
+		UMaterialInstanceDynamic* BallMaterial = StaticMeshComponent->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
+		UMaterialInstanceDynamic* StrapMaterial = StaticMeshComponent->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);
+		BallMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
+		StrapMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
+	}
+
 	// Instance the blur meshes
-	if (BlurMesh && BlurMesh->GetStaticMesh() && BallTranslucentMaterial && StrapTranslucentMaterial && OpacityFloatCurve)
+	if (BallTranslucentMaterial && StrapTranslucentMaterial && OpacityFloatCurve && BlurStaticMesh)
 	{
 		for (int32 i = 0; i < NumBlurMeshes; i++)
 		{
-			const float Opacity = BlurMeshMaxOpacity * OpacityFloatCurve->GetFloatValue(i / NumBlurMeshes);
-			BlurMesh->AddInstance(FTransform(i * SpinRotator * BlurMeshAngle, FVector(0, 0, 0), FVector(1, 1, 1)));
+			UStaticMeshComponent* BlurMesh = NewObject<UStaticMeshComponent>(this);
+			BlurMesh->AttachToComponent(StaticMeshComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
+			BlurMesh->RegisterComponent();
+			BlurMesh->SetStaticMesh(BlurStaticMesh);
+			BlurMeshes.Add(BlurMesh);
+			BlurMesh->SetRelativeTransform(FTransform(FRotator(i * SpinRotator * BlurMeshAngle), FVector(0, 0, 0), FVector(1, 1, 1)));
+			const float Opacity = BlurMeshMaxOpacity * OpacityFloatCurve->GetFloatValue(float(i) / float(NumBlurMeshes));
+			// GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::SanitizeFloat(Opacity));
 			UMaterialInstanceDynamic* BallMaterial = BlurMesh->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
 			BallMaterial->SetScalarParameterValue(FName("Opacity"), Opacity);
 			UMaterialInstanceDynamic* StrapMaterial = BlurMesh->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);
 			StrapMaterial->SetScalarParameterValue(FName("Opacity"), Opacity);
 		}
 	}
-	else if (!BlurMesh)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Dafuq"));
-	}
-	else if (!BlurMesh->GetStaticMesh())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("What the fuc"));
-	}
-	if (StaticMesh)
-	{
-		UMaterialInstanceDynamic* BallMaterial = StaticMesh->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
-		UMaterialInstanceDynamic* StrapMaterial = StaticMesh->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);
-		BallMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
-		StrapMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
-	}
+	if (!BallTranslucentMaterial) GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("BallTranslucentMaterial null"));
+	if (!StrapTranslucentMaterial) GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("StrapTranslucentMaterial null"));
+	if (!OpacityFloatCurve) GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("OpacityFloatCurve null"));
+	if (!BlurStaticMesh) GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("BlurStaticMesh null"));
 }
 
 void ABallBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	AddActorWorldRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
+	// AddActorWorldRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
+	StaticMeshComponent->AddLocalRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
 	PhysicsTick();
 }
