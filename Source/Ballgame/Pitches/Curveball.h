@@ -23,5 +23,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void PhysicsTick() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Break")
+		UCurveFloat* GravityCurveFloat; // Maps the gravity scale at each x-distance
 	
 };

@@ -148,6 +148,8 @@ void APrecisionController::OnBallWallHit(UPrimitiveComponent* OverlappedComp, AA
 	ABallBase* Ball = Cast<ABallBase>(OtherActor);
 	if (Ball)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Ballwall hit with ball"));
+		Sidebar->UpdatePitch(Ball->PitchType, Ball->SpeedMPH);
 		switch (Ball->Status)
 		{
 		case EBallStatus::BS_Ball:

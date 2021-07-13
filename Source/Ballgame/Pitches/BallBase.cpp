@@ -2,10 +2,10 @@
 
 #include "BallBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Materials/Material.h"
 #include "DrawDebugHelpers.h"
 #include "Curves/CurveFloat.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 ABallBase::ABallBase()
@@ -18,22 +18,14 @@ ABallBase::ABallBase()
 	SetRootComponent(StaticMeshComponent);
 	
 	PMC = CreateDefaultSubobject<UProjectileMovementComponent>(FName("PMC"));
-	PMC->ProjectileGravityScale = 1;
-
+	
 }
 
 // Called when the game starts or when spawned
 void ABallBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (StaticMeshComponent)
-	{
-		UMaterialInstanceDynamic* BallMaterial = StaticMeshComponent->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
-		UMaterialInstanceDynamic* StrapMaterial = StaticMeshComponent->CreateDynamicMaterialInstance(1, StrapTranslucentMaterial);
-		BallMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
-		StrapMaterial->SetScalarParameterValue(FName("Opacity"), StaticMeshOpacity);
-	}
-
+	
 	// Instance the blur meshes
 	if (BallTranslucentMaterial && StrapTranslucentMaterial && OpacityFloatCurve && BlurStaticMesh)
 	{
@@ -44,7 +36,7 @@ void ABallBase::BeginPlay()
 			BlurMesh->RegisterComponent();
 			BlurMesh->SetStaticMesh(BlurStaticMesh);
 			BlurMeshes.Add(BlurMesh);
-			BlurMesh->SetRelativeTransform(FTransform(FRotator(i * SpinRotator * BlurMeshAngle), FVector(0, 0, 0), FVector(1, 1, 1)));
+			BlurMesh->SetRelativeTransform(FTransform(FRotator(i * SpinRotator * -BlurMeshAngle), FVector(0, 0, 0), FVector(1, 1, 1)));
 			const float Opacity = BlurMeshMaxOpacity * OpacityFloatCurve->GetFloatValue(float(i) / float(NumBlurMeshes));
 			// GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, FString::SanitizeFloat(Opacity));
 			UMaterialInstanceDynamic* BallMaterial = BlurMesh->CreateDynamicMaterialInstance(0, BallTranslucentMaterial);
@@ -62,7 +54,7 @@ void ABallBase::BeginPlay()
 void ABallBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// AddActorWorldRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
-	StaticMeshComponent->AddLocalRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
+	AddActorLocalRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
+	// StaticMeshComponent->AddLocalRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
 	PhysicsTick();
 }

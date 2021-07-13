@@ -7,6 +7,9 @@
 AFastball::AFastball()
 {
 	SpinRotator = FRotator(1, 0, 0);
+	NumBlurMeshes = 10;
+	BlurMeshAngle = -5;
+	BlurMeshMaxOpacity = 0.8;
 }
 
 void AFastball::BeginPlay()
@@ -27,6 +30,6 @@ void AFastball::Tick(float DeltaTime)
 void AFastball::PhysicsTick()
 {
 	// Deceleration since last frame
-	const float Deceleration = (PrevX - GetActorLocation().X) * 0.4687; // 0.4687
+	const float Deceleration = (PrevX - GetActorLocation().X) * 0.20952381622;
 	PMC->Velocity += FVector(Deceleration, 0, 0);
 }

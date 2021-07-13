@@ -2,10 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "BallBase.generated.h"
-
 UENUM(Blueprintable)
 enum class EBallStatus : uint8
 {
@@ -13,6 +9,11 @@ enum class EBallStatus : uint8
 	BS_Ball		UMETA(DisplayName = "Ball"),
 	BS_Hit		UMETA(DisplayName = "Hit"),
 };
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "BallBase.generated.h"
 
 UCLASS()
 class BALLGAME_API ABallBase : public AActor
@@ -27,6 +28,12 @@ public:
 	// Sets default values for this actor's properties
 	ABallBase();
 
+	// Release information
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Release Info")
+		int SpeedMPH;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Release Info")
+		int PitchType; // 1 fastball, 2 curveball
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 		class UStaticMeshComponent* StaticMeshComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
@@ -35,7 +42,7 @@ public:
 		float StaticMeshOpacity = 0.9;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-		class UProjectileMovementComponent* PMC;
+		UProjectileMovementComponent* PMC;
 
 	// Pure virtual function for physics, called every frame
 	virtual void PhysicsTick() PURE_VIRTUAL(ABallBase::PhysicsTick);

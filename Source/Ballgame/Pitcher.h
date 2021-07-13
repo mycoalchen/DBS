@@ -53,7 +53,7 @@ public:
 		void ThrowFastball(float MPH, float SpinRate);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
-		FRotator CurveballStartRotator = FRotator(0, 30, -90);
+		FRotator CurveballStartRotator = FRotator(-31, -60, -19);
 	UFUNCTION(BlueprintCallable, Category = "My functions")
 		void ThrowCurveball(float MPH, float SpinRate);
 	
