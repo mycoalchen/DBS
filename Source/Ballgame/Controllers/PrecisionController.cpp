@@ -90,6 +90,7 @@ void APrecisionController::CheckSwing(float TimeRemaining)
 {
 	FVector2D ReticlePosition, ViewportSize;
 	FVector WorldPosition, WorldDirection;
+	
 	if (Reticle && Reticle->ReticleImage)
 	{
 		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Reticle->ReticleImage->Slot))
@@ -97,12 +98,22 @@ void APrecisionController::CheckSwing(float TimeRemaining)
 	}
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+	if (!ActiveBall)
+	{
+		DrawDebugSphere(GetWorld(), BestSwingLocation, SwingHitRadius, 30, FColor::Blue, false, 2);
+		DrawDebugSphere(GetWorld(), BestBallLocation, 3.9, 30, FColor::Red, false, 2);
+		ReticleSensitivity *= 10;
+		Sidebar->UpdateHit(false);
+		Sidebar->UpdateMiss(-SwingToBall, SwingHitRadius);
+		return;
+	}
 	
 	if (PC->DeprojectScreenPositionToWorld(ReticlePosition.X + ViewportSize.X * 0.5, ReticlePosition.Y + ViewportSize.Y * 0.5, WorldPosition, WorldDirection))
 	{
 		// Calculate the swing location using the swing plane and deprojected click location
-		const FVector SwingLocation = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + WorldDirection, SwingPlane);
-		const FVector NewSwingToBall = SwingLocation - ActiveBall->GetActorLocation();
+		FVector SwingLocation = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + WorldDirection, SwingPlane);
+		FVector NewSwingToBall = SwingLocation - ActiveBall->GetActorLocation();
 		if (NewSwingToBall.SizeSquared() < SwingToBall.SizeSquared()) {
 			SwingToBall = NewSwingToBall;
 			BestSwingLocation = SwingLocation;
@@ -118,13 +129,13 @@ void APrecisionController::CheckSwing(float TimeRemaining)
 			Sidebar->UpdateHit(false);
 			Sidebar->UpdateMiss(-SwingToBall, SwingHitRadius);
 			ReticleSensitivity *= 10;
-			DrawDebugSphere(GetWorld(), BestSwingLocation, SwingHitRadius, 16, FColor::Blue, false, 2);
+			DrawDebugSphere(GetWorld(), BestSwingLocation, SwingHitRadius, 30, FColor::Blue, false, 2);
 			// DrawDebugLine(GetWorld(), BestSwingLocation, BestSwingLocation - FVector(0, 0, 200), FColor::Blue, false, 2, 0, 0.3);
-			DrawDebugSphere(GetWorld(), BestBallLocation, 3.9, 16, FColor::Red, false, 2);
+			DrawDebugSphere(GetWorld(), BestBallLocation, 3.9, 30, FColor::Red, false, 2);
 			// DrawDebugLine(GetWorld(), BestBallLocation, BestBallLocation - FVector(0, 0, 200), FColor::Red, false, 2, 0, 0.3);
 			return;
 		}
-		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= (SwingHitRadius+7.8)* (SwingHitRadius + 7.8))
+		if (FVector::DistSquared(SwingLocation, ActiveBall->GetActorLocation()) <= (SwingHitRadius+ 3.9 ) * (SwingHitRadius + 3.9))
 		{
 			ActiveBall->Status = EBallStatus::BS_Hit;
 			Sidebar->UpdateHit(true);

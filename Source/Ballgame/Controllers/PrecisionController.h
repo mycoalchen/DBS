@@ -21,7 +21,7 @@ public:
 		bool CanSwing = true;
 	// Number of seconds to keep swing sphere active
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
-		float BaseSwingDuration = 0.08;
+		float BaseSwingDuration = 0.12;
 	UPROPERTY(BlueprintReadWrite, Category = "Swinging")
 		float SwingDuration = BaseSwingDuration;
 	

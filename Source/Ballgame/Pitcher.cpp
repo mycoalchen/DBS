@@ -26,6 +26,7 @@ APitcher::APitcher()
 	Body_Mesh->SetupAttachment(Capsule);
 	ReleasePoint = CreateDefaultSubobject<USceneComponent>(FName("ReleasePoint"));
 	ReleasePoint->SetupAttachment(Body_Mesh);
+	PitchTarget = CreateDefaultSubobject<USceneComponent>(FName("PitchTarget"));
 }
 
 // Called when the game starts or when spawned
@@ -48,6 +49,8 @@ void APitcher::Tick(float DeltaTime)
 		ThrowFastball();
 		TimeSinceLastThrow = 0;
 	}*/
+	if (DrawPitchTarget)
+	DrawDebugSphere(GetWorld(), PitchTarget->GetComponentLocation(), 3, 20, FColor::White, false, 2 * DeltaTime);
 }
 
 void APitcher::ThrowFastball(float MPH, float SpinRate)
@@ -70,18 +73,20 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
 	const FRotator SpawnRotation = FastballStartRotator;
+
+	const FVector ReleaseToTarget = (PitchTarget->GetComponentLocation() - SpawnLocation).GetSafeNormal();
+	
 	AFastball* ball = GetWorld()->SpawnActor<AFastball>(FastballClass, SpawnLocation, SpawnRotation, SpawnParams);
-	ball->RegisterAllComponents();
 	// Always crashes on this line for some reason
 	if (ball->PMC)
 	{
-	ball->PMC->InitialSpeed = MPH * 44.7;
-	ball->PMC->MaxSpeed = 0;
-	ball->PMC->Velocity = FVector(-MPH * 44.7, FMath::FRandRange(-40, 40), FMath::FRandRange(-125, -35));
-	ball->SetLifeSpan(TimeBetweenThrows);
-	ball->SpinRateRPM = SpinRate;
-	ball->SpeedMPH = MPH;
-	ball->PitchType = 1;
+		ball->PMC->InitialSpeed = MPH * 44.7;
+		ball->PMC->MaxSpeed = 0;
+		ball->PMC->Velocity = MPH * 44.7 * ReleaseToTarget + FVector(0, 0, 30);
+		ball->SetLifeSpan(TimeBetweenThrows);
+		ball->SpinRateRPM = SpinRate;
+		ball->SpeedMPH = MPH;
+		ball->PitchType = 1;
 	}
 
 	APlayerCharacter* Player = StaticCast<APlayerCharacter*>(GetWorld()->GetFirstPlayerController()->GetCharacter());
@@ -117,14 +122,15 @@ void APitcher::ThrowCurveball2(float MPH, float SpinRate)
 	// Don't throw a pitch if there's already an active ball
 	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
 	if (GameState && GameState->PlayerCharacter->ActiveBall || !GameState) return;
-
+	
 	// Spawn the ball at the correct location
+	const FVector ReleaseToTarget = (PitchTarget->GetComponentLocation() - ReleasePoint->GetComponentLocation()).GetSafeNormal();
 	const FActorSpawnParameters SpawnParams;
 	ACurveball* ball = GetWorld()->SpawnActor<ACurveball>(CurveballClass, ReleasePoint->GetComponentLocation(), CurveballStartRotator, SpawnParams);
 	ball->RegisterAllComponents();
 	ball->PMC->InitialSpeed = MPH * 44.7;
 	ball->PMC->MaxSpeed = 0;
-	ball->PMC->Velocity = FVector(-MPH * 44.7, FMath::FRandRange(-40, 40), FMath::FRandRange(-125, -35));
+	ball->PMC->Velocity = MPH * 44.7 * ReleaseToTarget + FVector(0, 0, 100);
 	ball->SetLifeSpan(TimeBetweenThrows);
 	ball->SpinRateRPM;
 	ball->SpeedMPH = MPH;

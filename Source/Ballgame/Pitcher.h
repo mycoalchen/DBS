@@ -36,7 +36,12 @@ public:
 	// Point to throw ball from
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch stats")
 		class USceneComponent* ReleasePoint;
-
+	// Target to throw ball at (hard-coded gravity/break adjustment)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pitch target")
+		class USceneComponent* PitchTarget;
+	UPROPERTY(BlueprintReadWrite, Category = "Pitch target")
+		bool DrawPitchTarget = true;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pitch types")
 		TSubclassOf<class AFastball> FastballClass;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pitch types")
