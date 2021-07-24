@@ -10,6 +10,8 @@ UCLASS()
 class BALLGAME_API AMyGSB : public AGameStateBase
 {
 	GENERATED_BODY()
+
+		virtual void BeginPlay() override;
 	
 public:
 	

@@ -67,8 +67,7 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 {
 	// Don't throw a pitch if there's already an active ball
 	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
-	if (GameState && GameState->PlayerCharacter->ActiveBall || !GameState) return;
-
+	if ((GameState && GameState->PlayerCharacter && GameState->PlayerCharacter->ActiveBall) || !GameState) return;
 	// Spawn the ball at the correct location
 	const FActorSpawnParameters SpawnParams;
 	const FVector SpawnLocation = ReleasePoint->GetComponentLocation();
@@ -77,6 +76,7 @@ void APitcher::ThrowFastball2(float MPH, float SpinRate)
 	const FVector ReleaseToTarget = (PitchTarget->GetComponentLocation() - SpawnLocation).GetSafeNormal();
 	
 	AFastball* ball = GetWorld()->SpawnActor<AFastball>(FastballClass, SpawnLocation, SpawnRotation, SpawnParams);
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Got here"));
 	// Always crashes on this line for some reason
 	if (ball->PMC)
 	{

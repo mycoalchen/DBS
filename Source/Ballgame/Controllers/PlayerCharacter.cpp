@@ -4,6 +4,7 @@
 #include "PlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "CinematicCamera/Public/CineCameraComponent.h"
+#include "../Framework/MyGSB.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -18,7 +19,12 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	AMyGSB* GameState = Cast<AMyGSB>(GetWorld()->GetGameState());
+	if (GameState)
+	{
+		GameState->PlayerCharacter = this;
+		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("GSB PlayerCharacter initialized in PlayerCharacter.cpp"));
+	}
 }
 
 // Called every frame

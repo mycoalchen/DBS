@@ -54,7 +54,17 @@ void ABallBase::BeginPlay()
 void ABallBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	AddActorLocalRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
 	// StaticMeshComponent->AddLocalRotation(SpinRotator * SpinRateRPM * 6 * DeltaTime); // conversion factor from rpm to d/sec = 6
 	PhysicsTick();
+	
+	// DrawDebugLine(GetWorld(), PrevLocation, GetActorLocation(), FColor::Red, false, 1.5);
+	// DrawDebugSphere(GetWorld(), GetActorLocation(), 0.5, 10, FColor::Red, false, 1.5);
+	const FVector DirectionVector = GetActorLocation() - PrevLocation;
+	const FQuat DirectionQuat = FQuat::FindBetweenVectors(FVector(0, 0, 1), DirectionVector);
+	// GEngine->AddOnScreenDebugMessage(-1, 1, FColor::White, DirectionVector.ToOrientationQuat().ToString());
+	PrevLocation = GetActorLocation();
+
+	// DrawDebugCapsule(GetWorld(), GetActorLocation(), 16, 3.9, DirectionQuat, FColor::Red, false, 1.5);
 }

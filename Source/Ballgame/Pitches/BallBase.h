@@ -23,6 +23,8 @@ class BALLGAME_API ABallBase : public AActor
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	FVector PrevLocation;
 	
 public:
 	// Sets default values for this actor's properties

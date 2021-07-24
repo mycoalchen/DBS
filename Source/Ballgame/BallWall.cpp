@@ -6,6 +6,7 @@
 #include "Framework/MyGI.h"
 #include "Framework/MyGSB.h"
 #include "Controllers/PrecisionController.h"
+#include "Controllers/ZoneController.h"
 #include "Components/BoxComponent.h"
 
 void ABallWall::BeginPlay()
@@ -24,8 +25,15 @@ void ABallWall::BeginPlay()
 				APrecisionController* PC = Cast<APrecisionController>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 				if (PC)
 				{
-					GameState->PlayerCharacter = PC; // Have to call this here to ensure that the following code works (BeginPlay may be called on this actor first)
+					GameState->PlayerCharacter = PC;
 					OverlapBox->OnComponentBeginOverlap.AddDynamic(PC, &APrecisionController::OnBallWallHit);
+				}
+			case EInputMode::IM_Zone:
+				AZoneController* ZC = Cast<AZoneController>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+				if (ZC)
+				{
+					GameState->PlayerCharacter = ZC;
+					OverlapBox->OnComponentBeginOverlap.AddDynamic(ZC, &AZoneController::OnBallWallHit);
 				}
 			}
 		}
